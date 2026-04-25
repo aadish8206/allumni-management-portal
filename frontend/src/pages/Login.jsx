@@ -54,6 +54,11 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)} 
               required 
             />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+              <Link to="/forgot-password" style={{ color: 'var(--primary)', fontSize: '0.875rem', textDecoration: 'none', fontWeight: 500 }}>
+                Forgot Password?
+              </Link>
+            </div>
           </div>
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>Login</button>
         </form>

@@ -13,7 +13,9 @@ const UserSchema = new mongoose.Schema({
   bio: { type: String },
   phone: { type: String },
   linkedin: { type: String },
-  isVerified: { type: Boolean, default: false }
+  isVerified: { type: Boolean, default: false },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);
