@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
   Network, MessageSquare, User, Briefcase, Calendar,
-  DollarSign, LogOut, Send, Star, Plus, X, Edit, Check, Inbox
+  DollarSign, LogOut, Send, Star, Plus, X, Edit, Check, Inbox, Trash2
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -49,6 +49,9 @@ const DirectContact = ({ token }) => {
   };
 
   const MessageItem = ({ msg, isSent }) => {
+    const [editing, setEditing] = useState(false);
+    const [editContent, setEditContent] = useState(msg.content);
+
     const handleDownload = async () => {
       try {
         const r = await api(token).get(`/users/resume/${msg.attachedResumeId}`);
@@ -61,14 +64,56 @@ const DirectContact = ({ token }) => {
       }
     };
 
+    const handleEdit = async () => {
+      try {
+        const r = await api(token).put(`/messages/${msg._id}`, { content: editContent });
+        if (isSent) setSent(sent.map(m => m._id === msg._id ? r.data : m));
+        else setInbox(inbox.map(m => m._id === msg._id ? r.data : m));
+        setEditing(false);
+      } catch (err) {
+        alert('Could not edit message.');
+      }
+    };
+
+    const handleDelete = async () => {
+      if (!confirm('Delete this message?')) return;
+      try {
+        await api(token).delete(`/messages/${msg._id}`);
+        if (isSent) setSent(sent.filter(m => m._id !== msg._id));
+        else setInbox(inbox.filter(m => m._id !== msg._id));
+      } catch (err) {
+        alert('Could not delete message.');
+      }
+    };
+
     return (
       <div style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '0.75rem', marginBottom: '0.75rem', background: msg.read ? 'white' : '#f0f4ff' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-          <span style={{ fontWeight: 700 }}>{isSent ? `To: ${msg.senderName || 'User'}` : `From: ${msg.senderName}`}</span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(msg.createdAt).toLocaleString()}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
+          <span style={{ fontWeight: 700 }}>{isSent ? `To: ${msg.receiverName || 'User'}` : `From: ${msg.senderName}`}</span>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(msg.createdAt).toLocaleString()}</span>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {isSent && (
+                <button onClick={() => setEditing(!editing)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)' }} title="Edit"><Edit size={14} /></button>
+              )}
+              <button onClick={handleDelete} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }} title="Delete"><Trash2 size={14} /></button>
+            </div>
+          </div>
         </div>
-        <p style={{ color: 'var(--text-muted)', margin: 0 }}>{msg.content}</p>
-        {msg.attachedResumeId && (
+        
+        {editing ? (
+          <div style={{ marginTop: '0.5rem' }}>
+            <textarea className="form-input" rows={3} value={editContent} onChange={e => setEditContent(e.target.value)} />
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={handleEdit}>Save</button>
+              <button className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={() => setEditing(false)}>Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--text-muted)', margin: 0 }}>{msg.content}</p>
+        )}
+
+        {msg.attachedResumeId && !editing && (
           <button className="btn btn-primary" onClick={handleDownload} style={{ marginTop: '1rem', padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
             📄 Download Attached Resume
           </button>
