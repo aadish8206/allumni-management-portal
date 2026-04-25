@@ -255,6 +255,7 @@ const ResourcesTab = ({ token, userName }) => {
   const [resources, setResources] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', type: 'announcement', fileUrl: '', fileName: '' });
+  const [previewFile, setPreviewFile] = useState(null);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -264,6 +265,23 @@ const ResourcesTab = ({ token, userName }) => {
       setForm({ ...form, fileUrl: reader.result, fileName: file.name });
     };
     reader.readAsDataURL(file);
+  };
+
+  const openPreview = (base64, title) => {
+    try {
+      const byteCharacters = atob(base64.split(',')[1]);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      setPreviewFile({ url, title });
+    } catch (e) {
+      // Fallback for non-PDFs or if atob fails
+      setPreviewFile({ url: base64, title });
+    }
   };
 
   useEffect(() => {
@@ -321,6 +339,15 @@ const ResourcesTab = ({ token, userName }) => {
         </Modal>
       )}
 
+      {previewFile && (
+        <Modal title={previewFile.title} onClose={() => setPreviewFile(null)}>
+          <iframe src={previewFile.url} title="Preview" style={{ width: '100%', height: '70vh', border: 'none', borderRadius: '0.5rem' }} />
+          <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+            <a href={previewFile.url} download={previewFile.title} className="btn btn-primary">Download Copy</a>
+          </div>
+        </Modal>
+      )}
+
       <div style={{ display: 'grid', gap: '1rem' }}>
         {resources.map(r => (
           <div key={r._id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -331,9 +358,14 @@ const ResourcesTab = ({ token, userName }) => {
               </div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>{r.description}</p>
               {r.fileUrl && (
-                <a href={r.fileUrl} download={r.title || 'file'} className="btn btn-primary" style={{ marginTop: '0.75rem', padding: '0.3rem 0.75rem', fontSize: '0.75rem', display: 'inline-block', textDecoration: 'none' }}>
-                  📄 View Attached File
-                </a>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  <button onClick={() => openPreview(r.fileUrl, r.title)} className="btn btn-primary" style={{ padding: '0.3rem 0.75rem', fontSize: '0.75rem' }}>
+                    👁️ Preview Document
+                  </button>
+                  <a href={r.fileUrl} download={r.title || 'file'} className="btn" style={{ padding: '0.3rem 0.75rem', fontSize: '0.75rem', background: 'var(--bg-color)', textDecoration: 'none' }}>
+                    💾 Download
+                  </a>
+                </div>
               )}
               <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem' }}>Posted by {r.uploadedByName} • {new Date(r.createdAt).toLocaleDateString()}</p>
             </div>

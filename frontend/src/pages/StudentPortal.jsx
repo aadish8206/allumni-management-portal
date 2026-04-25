@@ -412,11 +412,28 @@ const StudentProfile = ({ token }) => {
 const ResourceHub = ({ token }) => {
   const [resources, setResources] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [previewFile, setPreviewFile] = useState(null);
 
   useEffect(() => {
     const params = filter !== 'all' ? { type: filter } : {};
     api(token).get('/resources', { params }).then(r => setResources(r.data)).catch(console.error);
   }, [token, filter]);
+
+  const openPreview = (base64, title) => {
+    try {
+      const byteCharacters = atob(base64.split(',')[1]);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      setPreviewFile({ url, title });
+    } catch (e) {
+      setPreviewFile({ url: base64, title });
+    }
+  };
 
   const typeColor = { note: '#4F46E5', announcement: '#F59E0B', update: '#10B981' };
 
@@ -432,6 +449,15 @@ const ResourceHub = ({ token }) => {
         ))}
       </div>
 
+      {previewFile && (
+        <Modal title={previewFile.title} onClose={() => setPreviewFile(null)}>
+          <iframe src={previewFile.url} title="Preview" style={{ width: '100%', height: '70vh', border: 'none', borderRadius: '0.5rem' }} />
+          <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+            <a href={previewFile.url} download={previewFile.title} className="btn btn-primary">Download Copy</a>
+          </div>
+        </Modal>
+      )}
+
       <div style={{ display: 'grid', gap: '1rem' }}>
         {resources.map(r => (
           <div key={r._id} className="card">
@@ -441,9 +467,14 @@ const ResourceHub = ({ token }) => {
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{r.description}</p>
             {r.fileUrl && (
-              <a href={r.fileUrl} download={r.title || 'file'} className="btn btn-primary" style={{ marginBottom: '1rem', padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'inline-block', textDecoration: 'none' }}>
-                📄 View Attached File
-              </a>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                <button onClick={() => openPreview(r.fileUrl, r.title)} className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                  👁️ Preview
+                </button>
+                <a href={r.fileUrl} download={r.title || 'file'} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--bg-color)', textDecoration: 'none' }}>
+                  💾 Download
+                </a>
+              </div>
             )}
             <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
               Posted by {r.uploadedByName} • {new Date(r.createdAt).toLocaleDateString()}
