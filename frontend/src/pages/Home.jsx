@@ -82,16 +82,16 @@ const Home = () => {
           <div className="shape shape-2"></div>
         </div>
         
-        <div className="hero-content">
+        <div className="hero-content animate-slide-up">
           <div className="hero-badge">
             <Award size={16} color="#F59E0B" style={{ marginRight: '6px' }} />
             <span>The official platform for our graduates</span>
           </div>
-          <h1 className="hero-title">
+          <h1 className="hero-title" style={{ textAlign: 'left' }}>
             Your Lifelong Connection to <br />
             <span className="hero-highlight">Excellence and Opportunity</span>
           </h1>
-          <p className="hero-subtitle">
+          <p className="hero-subtitle" style={{ textAlign: 'left', margin: '0 0 3rem' }}>
             Bridge the gap between campus life and the professional world. 
             Join thousands of alumni and students networking, sharing opportunities, and growing together.
           </p>
@@ -103,6 +103,10 @@ const Home = () => {
               Sign In to Your Portal
             </Link>
           </div>
+        </div>
+
+        <div className="hero-image-container animate-fade-in delay-200">
+          <img src="/images/hero.png" alt="Students and Alumni Networking" className="hero-image" />
         </div>
       </section>
 
