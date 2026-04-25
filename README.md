@@ -272,11 +272,31 @@ After login, users are automatically redirected to their role-specific portal. A
 
 ## ⚙️ Environment Variables
 
+### Backend Configuration (`backend/.env`)
+
 | Variable       | Description                          | Default                                      |
 |----------------|--------------------------------------|----------------------------------------------|
 | `PORT`         | Port for the Express server          | `5000`                                       |
 | `MONGODB_URI`  | MongoDB connection string            | `mongodb://127.0.0.1:27017/alumni_portal`    |
 | `JWT_SECRET`   | Secret key for signing JWT tokens    | —                                            |
+| `FRONTEND_URL` | URL of the React frontend            | `http://localhost:5173`                      |
+
+#### Email Configuration (Optional)
+To enable real email notifications (for mentorship requests and messaging), add the following to your Render Environment Variables. If left blank, the server safely runs in **Mock Mode** and prints emails to the console.
+
+| Variable       | Description                          | Example                                      |
+|----------------|--------------------------------------|----------------------------------------------|
+| `SMTP_HOST`    | Email SMTP Server Host               | `smtp.gmail.com`                             |
+| `SMTP_PORT`    | Email SMTP Server Port               | `587`                                        |
+| `SMTP_USER`    | Email address for authentication     | `your_email@gmail.com`                       |
+| `SMTP_PASS`    | App Password (do not use normal pass)| `abcd1234efgh5678`                           |
+| `SMTP_FROM`    | Display name and From address        | `"Alumni Portal" <noreply@yourdomain.com>`   |
+
+### Frontend Configuration (`frontend/.env`)
+
+| Variable       | Description                          | Default                                      |
+|----------------|--------------------------------------|----------------------------------------------|
+| `VITE_API_URL` | Base URL of the Node.js backend      | `http://localhost:5000`                      |
 
 ---
 
