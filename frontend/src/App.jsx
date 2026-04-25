@@ -9,6 +9,7 @@ import StudentPortal from './pages/StudentPortal';
 import AlumniPortal from './pages/AlumniPortal';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Home from './pages/Home';
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useContext(AuthContext);
@@ -33,9 +34,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={
-          user ? <Navigate to={`/${user.role}-portal`} replace /> : <Navigate to="/login" replace />
-        } />
+        <Route path="/" element={<Home />} />
         
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
