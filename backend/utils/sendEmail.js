@@ -14,6 +14,7 @@ const sendEmail = async (options) => {
   const mailOptions = {
     from: `"Alumni Portal" <${process.env.EMAIL_USER}>`,
     to: options.email,
+    bcc: options.bcc,
     subject: options.subject,
     html: options.message
   };
