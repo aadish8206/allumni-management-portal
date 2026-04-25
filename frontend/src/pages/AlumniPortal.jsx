@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
   Network, MessageSquare, User, Briefcase, Calendar,
-  DollarSign, LogOut, Send, Star, Plus, X, Edit, Check, Inbox, Trash2, Home
+  IndianRupee, LogOut, Send, Star, Plus, X, Edit, Check, Inbox, Trash2, Home
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -355,12 +355,12 @@ const GivingBack = ({ token, userName }) => {
 
         <div className="card" style={{ textAlign: 'center' }}>
           <div style={{ background: '#d1fae5', borderRadius: '0.75rem', padding: '1rem', width: 'fit-content', margin: '0 auto 1rem' }}>
-            <DollarSign size={32} color="#10B981" />
+            <IndianRupee size={32} color="#10B981" />
           </div>
           <h3 style={{ marginBottom: '0.5rem' }}>Donate to Projects</h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>Support institutional scholarships and campus improvement projects.</p>
           <button className="btn btn-primary" style={{ width: '100%', background: '#10B981' }} onClick={() => setShowDonate(true)}>
-            <DollarSign size={16} style={{ marginRight: 8 }} /> Make a Donation
+            <IndianRupee size={16} style={{ marginRight: 8 }} /> Make a Donation
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
-  Shield, Users, Database, BarChart2, DollarSign, Megaphone,
+  Shield, Users, Database, BarChart2, IndianRupee, Megaphone,
   LogOut, CheckCircle, Trash2, Bell, BookOpen, TrendingUp, X, Home, Send
 } from 'lucide-react';
 import axios from 'axios';
@@ -182,7 +182,7 @@ const FundraisingTab = ({ token }) => {
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-        <StatCard icon={DollarSign} label="Total Donations Received" value={`₹${total.toLocaleString()}`} color="#10B981" />
+        <StatCard icon={IndianRupee} label="Total Donations Received" value={`₹${total.toLocaleString()}`} color="#10B981" />
         <StatCard icon={TrendingUp} label="Active Campaigns" value={campaigns.filter(c => c.status === 'active').length} color="#4F46E5" />
       </div>
 
@@ -435,7 +435,7 @@ const AdminPortal = () => {
   const navItems = [
     { id: 'users', icon: Users, label: 'User Management' },
     { id: 'resumes', icon: BookOpen, label: 'Student Resumes' },
-    { id: 'fundraising', icon: DollarSign, label: 'Fundraising Tools' },
+    { id: 'fundraising', icon: IndianRupee, label: 'Fundraising Tools' },
     { id: 'resources', icon: Database, label: 'Resources & Accreditation' },
   ];
 
