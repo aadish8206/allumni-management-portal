@@ -32,8 +32,8 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container" style={{ padding: '2rem 1rem' }}>
-      <div className="auth-card card" style={{ maxWidth: '500px' }}>
+    <div className="auth-container animate-fade-in" style={{ padding: '2rem 1rem' }}>
+      <div className="auth-card card animate-slide-up" style={{ maxWidth: '500px' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ background: 'var(--primary)', color: 'white', width: '4rem', height: '4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
             <UserPlus size={32} />

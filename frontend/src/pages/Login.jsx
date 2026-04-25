@@ -22,8 +22,8 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card card">
+    <div className="auth-container animate-fade-in">
+      <div className="auth-card card animate-slide-up">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ background: 'var(--primary)', color: 'white', width: '4rem', height: '4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
             <GraduationCap size={32} />

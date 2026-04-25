@@ -481,7 +481,7 @@ const AlumniPortal = () => {
         </button>
       </aside>
 
-      <main className="main-content">
+      <main className="main-content animate-fade-in">
         <div className="header">
           <div>
             <h1 className="page-title">{tabTitles[tab]}</h1>
@@ -490,10 +490,12 @@ const AlumniPortal = () => {
           <span className="badge badge-alumni">Alumni</span>
         </div>
 
-        {tab === 'contact' && <DirectContact token={user.token} />}
-        {tab === 'profile' && <ProfessionalProfile token={user.token} />}
-        {tab === 'giving' && <GivingBack token={user.token} userName={user.name} />}
-        {tab === 'events' && <EventManager token={user.token} userName={user.name} />}
+        <div className="animate-slide-up delay-100">
+          {tab === 'contact' && <DirectContact token={user.token} />}
+          {tab === 'profile' && <ProfessionalProfile token={user.token} />}
+          {tab === 'giving' && <GivingBack token={user.token} userName={user.name} />}
+          {tab === 'events' && <EventManager token={user.token} userName={user.name} />}
+        </div>
       </main>
     </div>
   );

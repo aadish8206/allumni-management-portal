@@ -41,8 +41,8 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="auth-container animate-fade-in">
+      <div className="auth-card animate-slide-up">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-color)', marginBottom: '0.5rem' }}>
             Set New Password

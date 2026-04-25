@@ -292,7 +292,7 @@ const AdminPortal = () => {
         </button>
       </aside>
 
-      <main className="main-content">
+      <main className="main-content animate-fade-in">
         <div className="header">
           <div>
             <h1 className="page-title">
@@ -303,9 +303,11 @@ const AdminPortal = () => {
           <span className="badge badge-admin">Administrator</span>
         </div>
 
-        {tab === 'users' && <UserManagement token={user.token} stats={stats} />}
-        {tab === 'fundraising' && <FundraisingTab token={user.token} />}
-        {tab === 'resources' && <ResourcesTab token={user.token} userName={user.name} />}
+        <div className="animate-slide-up delay-100">
+          {tab === 'users' && <UserManagement token={user.token} stats={stats} />}
+          {tab === 'fundraising' && <FundraisingTab token={user.token} />}
+          {tab === 'resources' && <ResourcesTab token={user.token} userName={user.name} />}
+        </div>
       </main>
     </div>
   );

@@ -319,7 +319,7 @@ const StudentPortal = () => {
         </button>
       </aside>
 
-      <main className="main-content">
+      <main className="main-content animate-fade-in">
         <div className="header">
           <div>
             <h1 className="page-title">{tabTitles[tab]}</h1>
@@ -328,10 +328,12 @@ const StudentPortal = () => {
           <span className="badge badge-student">Current Student</span>
         </div>
 
-        {tab === 'batch' && <BatchTracking token={user.token} />}
-        {tab === 'mentorship' && <MentorshipAccess token={user.token} />}
-        {tab === 'opportunities' && <OpportunityBoard token={user.token} />}
-        {tab === 'resources' && <ResourceHub token={user.token} />}
+        <div className="animate-slide-up delay-100">
+          {tab === 'batch' && <BatchTracking token={user.token} />}
+          {tab === 'mentorship' && <MentorshipAccess token={user.token} />}
+          {tab === 'opportunities' && <OpportunityBoard token={user.token} />}
+          {tab === 'resources' && <ResourceHub token={user.token} />}
+        </div>
       </main>
     </div>
   );
