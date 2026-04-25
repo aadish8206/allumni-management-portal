@@ -77,6 +77,28 @@ The portal provides a tailored experience for three distinct user roles:
 
 ---
 
+## 📦 Dependencies
+
+### Backend
+- **`express`** (^5.2.1) - Web framework for handling API routes
+- **`mongoose`** (^9.4.1) - MongoDB object modeling for schemas
+- **`jsonwebtoken`** (^9.0.3) - Token-based authentication
+- **`bcryptjs`** (^3.0.3) - Password hashing and security
+- **`cors`** (^2.8.6) - Cross-origin resource sharing
+- **`dotenv`** (^17.4.2) - Environment variable management
+
+### Frontend
+- **`react`** (^19.2.4) & **`react-dom`** (^19.2.4) - Core UI libraries
+- **`react-router-dom`** (^7.14.1) - Client-side routing
+- **`axios`** (^1.15.0) - Promise-based HTTP client for API requests
+- **`lucide-react`** (^1.8.0) - Clean, customizable icon library
+
+### Dev Tooling
+- **`vite`** (^8.0.4) - Fast frontend build tool and dev server
+- **`eslint`** (^9.39.4) - JavaScript/JSX linting
+
+---
+
 ## 📁 Project Structure
 
 ```
