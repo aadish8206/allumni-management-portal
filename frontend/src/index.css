@@ -1,15 +1,17 @@
 :root {
-  --primary: #4F46E5; /* Indigo 600 */
-  --primary-hover: #4338CA;
-  --bg-color: #F8FAFC; /* Slate 50 */
+  /* Institutional Theme: Navy Blue & Gold */
+  --primary: #1E3A8A; /* Deep Navy Blue */
+  --primary-hover: #1E40AF;
+  --secondary: #D97706; /* Institutional Gold/Amber */
+  --bg-color: #F8FAFC;
   --card-bg: #FFFFFF;
-  --text-main: #0F172A; /* Slate 900 */
-  --text-muted: #64748B; /* Slate 500 */
+  --text-main: #0F172A;
+  --text-muted: #475569;
   --border-color: #E2E8F0;
   
-  --student-color: #10B981; /* Emerald 500 */
-  --admin-color: #EF4444; /* Red 500 */
-  --alumni-color: #F59E0B; /* Amber 500 */
+  --student-color: #059669; /* Deep Emerald */
+  --admin-color: #B91C1C; /* Crimson Red */
+  --alumni-color: #D97706; /* Gold */
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -54,15 +56,15 @@ input, button, select {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), #6366F1);
+  background: linear-gradient(135deg, var(--primary), #2563EB);
   color: white;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-hover), #4F46E5);
+  background: linear-gradient(135deg, var(--primary-hover), #1D4ED8);
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 8px 16px rgba(30, 58, 138, 0.35);
 }
 
 .btn-primary:disabled {
@@ -245,7 +247,7 @@ input, button, select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%);
+  background: linear-gradient(135deg, #DBEAFE 0%, #F1F5F9 100%);
   padding: 1rem;
   position: relative;
   overflow: hidden;
@@ -256,7 +258,7 @@ input, button, select {
   position: absolute;
   width: 400px;
   height: 400px;
-  background: #c7d2fe;
+  background: #BFDBFE;
   border-radius: 50%;
   filter: blur(100px);
   top: -100px;
@@ -269,7 +271,7 @@ input, button, select {
   position: absolute;
   width: 400px;
   height: 400px;
-  background: #fbcfe8;
+  background: #FEF3C7;
   border-radius: 50%;
   filter: blur(100px);
   bottom: -100px;
@@ -453,7 +455,7 @@ input, button, select {
 }
 
 .shape-1 {
-  background: #e0e7ff;
+  background: #DBEAFE;
   width: 500px;
   height: 500px;
   top: -100px;
@@ -462,7 +464,7 @@ input, button, select {
 }
 
 .shape-2 {
-  background: #fae8ff;
+  background: #FEF3C7;
   width: 400px;
   height: 400px;
   bottom: 100px;

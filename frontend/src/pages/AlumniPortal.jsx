@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
   Network, MessageSquare, User, Briefcase, Calendar,
-  DollarSign, LogOut, Send, Star, Plus, X, Edit, Check, Inbox, Trash2
+  DollarSign, LogOut, Send, Star, Plus, X, Edit, Check, Inbox, Trash2, Home
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -540,6 +540,9 @@ const AlumniPortal = () => {
             </button>
           ))}
         </nav>
+        <button onClick={() => window.location.href = '/'} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '0.5rem' }}>
+          <div className="nav-item"><Home size={20} /> Back to Home</div>
+        </button>
         <button onClick={logout} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}>
           <div className="nav-item" style={{ color: '#ef4444' }}><LogOut size={20} /> Logout</div>
         </button>

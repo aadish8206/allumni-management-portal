@@ -88,6 +88,12 @@ const Register = () => {
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
           Already have an account? <Link to="/login" style={{ color: 'var(--primary)', fontWeight: '600' }}>Login here</Link>
         </p>
+
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <Link to="/" style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            &larr; Back to Home Page
+          </Link>
+        </div>
       </div>
     </div>
   );
