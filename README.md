@@ -6,6 +6,8 @@
   <strong>A full-stack MERN platform connecting students, alumni & administrators — seamlessly.</strong>
 </p>
 
+<h3><a href="https://allumni-management-portal-1.onrender.com">🔴 Live Demo</a></h3>
+
 <p>
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
