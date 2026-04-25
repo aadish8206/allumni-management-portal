@@ -254,7 +254,17 @@ const FundraisingTab = ({ token }) => {
 const ResourcesTab = ({ token, userName }) => {
   const [resources, setResources] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', type: 'announcement' });
+  const [form, setForm] = useState({ title: '', description: '', type: 'announcement', fileUrl: '', fileName: '' });
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm({ ...form, fileUrl: reader.result, fileName: file.name });
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     api(token).get('/resources').then(r => setResources(r.data)).catch(console.error);
@@ -265,7 +275,7 @@ const ResourcesTab = ({ token, userName }) => {
     const res = await api(token).post('/resources', { ...form, uploadedByName: userName });
     setResources(r => [res.data, ...r]);
     setShowForm(false);
-    setForm({ title: '', description: '', type: 'announcement' });
+    setForm({ title: '', description: '', type: 'announcement', fileUrl: '', fileName: '' });
   };
 
   const del = async (id) => {
@@ -301,6 +311,11 @@ const ResourcesTab = ({ token, userName }) => {
               <label className="form-label">Description / Content</label>
               <textarea className="form-input" rows={4} required value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
             </div>
+            <div className="form-group" style={{ padding: '1rem', border: '1px dashed var(--primary)', borderRadius: '0.5rem', background: 'var(--bg-color)' }}>
+              <label className="form-label">Attach File (Optional PDF/Image)</label>
+              <input type="file" onChange={handleFileUpload} style={{ display: 'block', marginTop: '0.5rem' }} />
+              {form.fileName && <p style={{ fontSize: '0.75rem', color: '#10B981', marginTop: '0.5rem' }}>✓ {form.fileName} selected</p>}
+            </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Post</button>
           </form>
         </Modal>
@@ -315,6 +330,11 @@ const ResourcesTab = ({ token, userName }) => {
                 <p style={{ fontWeight: 700, margin: 0 }}>{r.title}</p>
               </div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>{r.description}</p>
+              {r.fileUrl && (
+                <a href={r.fileUrl} download={r.title || 'file'} className="btn btn-primary" style={{ marginTop: '0.75rem', padding: '0.3rem 0.75rem', fontSize: '0.75rem', display: 'inline-block', textDecoration: 'none' }}>
+                  📄 View Attached File
+                </a>
+              )}
               <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem' }}>Posted by {r.uploadedByName} • {new Date(r.createdAt).toLocaleDateString()}</p>
             </div>
             <button onClick={() => del(r._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}><Trash2 size={18} /></button>

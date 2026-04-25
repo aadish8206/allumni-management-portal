@@ -440,6 +440,11 @@ const ResourceHub = ({ token }) => {
               <h4 style={{ margin: 0 }}>{r.title}</h4>
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{r.description}</p>
+            {r.fileUrl && (
+              <a href={r.fileUrl} download={r.title || 'file'} className="btn btn-primary" style={{ marginBottom: '1rem', padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'inline-block', textDecoration: 'none' }}>
+                📄 View Attached File
+              </a>
+            )}
             <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
               Posted by {r.uploadedByName} • {new Date(r.createdAt).toLocaleDateString()}
             </p>
