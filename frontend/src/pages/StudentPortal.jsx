@@ -231,6 +231,134 @@ const OpportunityBoard = ({ token }) => {
   );
 };
 
+// ─── Student Profile & Resume ───────────────────────────────────────────────────
+const StudentProfile = ({ token }) => {
+  const [profile, setProfile] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({});
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    api(token).get('/users/me').then(r => { setProfile(r.data); setForm(r.data); }).catch(console.error);
+  }, [token]);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      alert('Please upload a PDF file.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm({ ...form, resumeBase64: reader.result, resumeFileName: file.name });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const save = async () => {
+    setUploading(true);
+    try {
+      const r = await api(token).put('/users/me', form);
+      setProfile(r.data);
+      setEditing(false);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save profile. Resume file might be too large.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (!profile) return <p style={{ color: 'var(--text-muted)' }}>Loading profile...</p>;
+
+  return (
+    <div style={{ maxWidth: '700px' }}>
+      <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+            <div style={{ width: '5rem', height: '5rem', borderRadius: '50%', background: 'linear-gradient(135deg, #10B981, #3B82F6)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 700 }}>
+              {profile.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h2 style={{ margin: 0 }}>{profile.name}</h2>
+              <span className="badge badge-student" style={{ marginTop: '0.5rem', display: 'inline-block' }}>Student • {profile.batch || 'N/A'} • {profile.department || 'N/A'}</span>
+            </div>
+          </div>
+          <button onClick={() => setEditing(!editing)} className="btn" style={{ background: editing ? '#fee2e2' : 'var(--bg-color)', color: editing ? '#EF4444' : 'var(--text-muted)' }}>
+            {editing ? 'Cancel' : 'Edit Profile'}
+          </button>
+        </div>
+      </div>
+
+      {editing ? (
+        <div className="card">
+          <h3 style={{ marginBottom: '1.5rem' }}>Edit Details & Resume</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input type="text" className="form-input" value={form.name || ''} onChange={e => setForm({ ...form, name: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Batch (Year)</label>
+              <input type="text" className="form-input" value={form.batch || ''} onChange={e => setForm({ ...form, batch: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Department</label>
+              <input type="text" className="form-input" value={form.department || ''} onChange={e => setForm({ ...form, department: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Phone</label>
+              <input type="tel" className="form-input" value={form.phone || ''} onChange={e => setForm({ ...form, phone: e.target.value })} />
+            </div>
+          </div>
+          
+          <div className="form-group" style={{ marginTop: '1rem' }}>
+            <label className="form-label">Bio / Objective</label>
+            <textarea className="form-input" rows={3} value={form.bio || ''} onChange={e => setForm({ ...form, bio: e.target.value })} />
+          </div>
+
+          <div className="form-group" style={{ marginTop: '1rem', padding: '1rem', border: '1px dashed var(--primary)', borderRadius: '0.5rem', background: 'var(--bg-color)' }}>
+            <label className="form-label">Upload Resume (PDF Only)</label>
+            <input type="file" accept="application/pdf" onChange={handleFileUpload} style={{ display: 'block', marginTop: '0.5rem' }} />
+            {form.resumeFileName && <p style={{ fontSize: '0.8rem', color: '#10B981', marginTop: '0.5rem' }}>✓ Selected: {form.resumeFileName}</p>}
+          </div>
+
+          <button onClick={save} className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={uploading}>
+            {uploading ? 'Saving...' : 'Save Profile'}
+          </button>
+        </div>
+      ) : (
+        <div className="card">
+          <h3 style={{ marginBottom: '1.5rem' }}>Profile Details</h3>
+          <div style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
+            <span style={{ fontWeight: 600, width: '120px', color: 'var(--text-muted)' }}>Email</span>
+            <span>{profile.email}</span>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
+            <span style={{ fontWeight: 600, width: '120px', color: 'var(--text-muted)' }}>Phone</span>
+            <span>{profile.phone || 'Not set'}</span>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
+            <span style={{ fontWeight: 600, width: '120px', color: 'var(--text-muted)' }}>Bio</span>
+            <span>{profile.bio || 'Not set'}</span>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', alignItems: 'center' }}>
+            <span style={{ fontWeight: 600, width: '120px', color: 'var(--text-muted)' }}>Resume</span>
+            {profile.resumeBase64 ? (
+              <a href={profile.resumeBase64} download={profile.resumeFileName || 'resume.pdf'} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                Download PDF
+              </a>
+            ) : (
+              <span style={{ color: '#EF4444' }}>No resume uploaded</span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Resource Hub ─────────────────────────────────────────────────────────────
 const ResourceHub = ({ token }) => {
   const [resources, setResources] = useState([]);
@@ -280,6 +408,7 @@ const StudentPortal = () => {
   const [tab, setTab] = useState('batch');
 
   const navItems = [
+    { id: 'profile', icon: Users, label: 'My Profile & Resume' },
     { id: 'batch', icon: Users, label: 'Alumni Directory' },
     { id: 'mentorship', icon: Star, label: 'Mentorship Access' },
     { id: 'opportunities', icon: Briefcase, label: 'Opportunity Board' },
@@ -287,6 +416,7 @@ const StudentPortal = () => {
   ];
 
   const tabTitles = {
+    profile: 'My Profile & Resume',
     batch: 'Alumni Directory & Batch Tracking',
     mentorship: 'Mentorship Access',
     opportunities: 'Opportunity Board',
@@ -329,6 +459,7 @@ const StudentPortal = () => {
         </div>
 
         <div className="animate-slide-up delay-100">
+          {tab === 'profile' && <StudentProfile token={user.token} />}
           {tab === 'batch' && <BatchTracking token={user.token} />}
           {tab === 'mentorship' && <MentorshipAccess token={user.token} />}
           {tab === 'opportunities' && <OpportunityBoard token={user.token} />}

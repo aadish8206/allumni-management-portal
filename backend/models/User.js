@@ -15,7 +15,9 @@ const UserSchema = new mongoose.Schema({
   linkedin: { type: String },
   isVerified: { type: Boolean, default: false },
   resetPasswordToken: String,
-  resetPasswordExpire: Date
+  resetPasswordExpire: Date,
+  resumeBase64: { type: String },
+  resumeFileName: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

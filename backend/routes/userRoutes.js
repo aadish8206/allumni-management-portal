@@ -17,10 +17,10 @@ router.get('/me', auth, async (req, res) => {
 // Update current user profile
 router.put('/me', auth, async (req, res) => {
   try {
-    const { name, batch, department, company, jobTitle, bio, phone, linkedin } = req.body;
+    const { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { $set: { name, batch, department, company, jobTitle, bio, phone, linkedin } },
+      { $set: { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName } },
       { new: true }
     ).select('-password');
     res.json(user);
@@ -92,6 +92,17 @@ router.get('/admin/stats', [auth, checkRole(['admin'])], async (req, res) => {
     const verifiedAlumni = await User.countDocuments({ role: 'alumni', isVerified: true });
     const pendingVerification = await User.countDocuments({ isVerified: false, role: { $ne: 'admin' } });
     res.json({ totalAlumni, totalStudents, verifiedAlumni, pendingVerification });
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
+// ADMIN & ALUMNI: Get student's resume
+router.get('/resume/:id', [auth, checkRole(['admin', 'alumni'])], async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('resumeBase64 resumeFileName');
+    if (!user || !user.resumeBase64) return res.status(404).json({ msg: 'Resume not found' });
+    res.json({ resumeBase64: user.resumeBase64, resumeFileName: user.resumeFileName });
   } catch (err) {
     res.status(500).send('Server Error');
   }

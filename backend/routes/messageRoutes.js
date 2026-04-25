@@ -8,13 +8,14 @@ const router = express.Router();
 // Send message
 router.post('/', auth, async (req, res) => {
   try {
-    const { receiverId, content } = req.body;
+    const { receiverId, content, attachedResumeId } = req.body;
     const sender = await User.findById(req.user.id).select('name');
     const message = new Message({
       sender: req.user.id,
       senderName: sender.name,
       receiver: receiverId,
-      content
+      content,
+      attachedResumeId
     });
     await message.save();
     res.json(message);

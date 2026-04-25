@@ -48,15 +48,34 @@ const DirectContact = ({ token }) => {
     setTimeout(() => { setShowCompose(false); setSuccess(false); setComposeData({ receiverId: '', content: '' }); }, 1500);
   };
 
-  const MessageItem = ({ msg, isSent }) => (
-    <div style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '0.75rem', marginBottom: '0.75rem', background: msg.read ? 'white' : '#f0f4ff' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-        <span style={{ fontWeight: 700 }}>{isSent ? `To: ${msg.senderName || 'User'}` : `From: ${msg.senderName}`}</span>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(msg.createdAt).toLocaleString()}</span>
+  const MessageItem = ({ msg, isSent }) => {
+    const handleDownload = async () => {
+      try {
+        const r = await api(token).get(`/users/resume/${msg.attachedResumeId}`);
+        const link = document.createElement('a');
+        link.href = r.data.resumeBase64;
+        link.download = r.data.resumeFileName || 'resume.pdf';
+        link.click();
+      } catch (err) {
+        alert('Resume could not be downloaded or was removed.');
+      }
+    };
+
+    return (
+      <div style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '0.75rem', marginBottom: '0.75rem', background: msg.read ? 'white' : '#f0f4ff' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+          <span style={{ fontWeight: 700 }}>{isSent ? `To: ${msg.senderName || 'User'}` : `From: ${msg.senderName}`}</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(msg.createdAt).toLocaleString()}</span>
+        </div>
+        <p style={{ color: 'var(--text-muted)', margin: 0 }}>{msg.content}</p>
+        {msg.attachedResumeId && (
+          <button className="btn btn-primary" onClick={handleDownload} style={{ marginTop: '1rem', padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+            📄 Download Attached Resume
+          </button>
+        )}
       </div>
-      <p style={{ color: 'var(--text-muted)', margin: 0 }}>{msg.content}</p>
-    </div>
-  );
+    );
+  };
 
   return (
     <div>

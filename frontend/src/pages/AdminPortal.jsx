@@ -250,6 +250,88 @@ const ResourcesTab = ({ token, userName }) => {
   );
 };
 
+// ─── Student Resumes Tab ──────────────────────────────────────────────────────
+const StudentResumes = ({ token }) => {
+  const [students, setStudents] = useState([]);
+  const [alumniList, setAlumniList] = useState([]);
+  const [forwarding, setForwarding] = useState(null);
+  const [msg, setMsg] = useState('');
+  const [receiverId, setReceiverId] = useState('');
+
+  useEffect(() => {
+    api(token).get('/users/admin/users').then(r => {
+      setStudents(r.data.filter(u => u.role === 'student' && u.resumeBase64));
+    }).catch(console.error);
+    api(token).get('/users/directory').then(r => setAlumniList(r.data)).catch(console.error);
+  }, [token]);
+
+  const forward = async () => {
+    await api(token).post('/messages', {
+      receiverId,
+      content: msg || `Please review the attached resume for ${forwarding.name}.`,
+      attachedResumeId: forwarding._id
+    });
+    setForwarding(null);
+    setMsg('');
+    setReceiverId('');
+    alert('Resume forwarded successfully!');
+  };
+
+  return (
+    <div>
+      <div className="card">
+        <h3 style={{ marginBottom: '1.5rem' }}>Student Resumes</h3>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+              <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Student Name</th>
+              <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Department</th>
+              <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Resume</th>
+              <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map(s => (
+              <tr key={s._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{s.name}</td>
+                <td style={{ padding: '0.75rem 1rem' }}>{s.department || '-'}</td>
+                <td style={{ padding: '0.75rem 1rem' }}>
+                  <a href={s.resumeBase64} download={s.resumeFileName || 'resume.pdf'} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>View PDF</a>
+                </td>
+                <td style={{ padding: '0.75rem 1rem' }}>
+                  <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={() => setForwarding(s)}>
+                    Forward to Alumni
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {students.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No student resumes uploaded yet.</p>}
+      </div>
+
+      {forwarding && (
+        <Modal title={`Forward ${forwarding.name}'s Resume`} onClose={() => setForwarding(null)}>
+          <div className="form-group">
+            <label className="form-label">Select Alumni</label>
+            <select className="form-input" value={receiverId} onChange={e => setReceiverId(e.target.value)}>
+              <option value="">Choose an Alumni...</option>
+              {alumniList.map(a => <option key={a._id} value={a._id}>{a.name} ({a.jobTitle || a.department})</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Message (Optional)</label>
+            <textarea className="form-input" rows={3} value={msg} onChange={e => setMsg(e.target.value)} placeholder="Take a look at this candidate..." />
+          </div>
+          <button className="btn btn-primary" style={{ width: '100%' }} disabled={!receiverId} onClick={forward}>
+            <Send size={16} style={{ marginRight: 8 }} /> Send Resume
+          </button>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
 // ─── Main Admin Portal ────────────────────────────────────────────────────────
 const AdminPortal = () => {
   const { user, logout } = useContext(AuthContext);
@@ -262,6 +344,7 @@ const AdminPortal = () => {
 
   const navItems = [
     { id: 'users', icon: Users, label: 'User Management' },
+    { id: 'resumes', icon: BookOpen, label: 'Student Resumes' },
     { id: 'fundraising', icon: DollarSign, label: 'Fundraising Tools' },
     { id: 'resources', icon: Database, label: 'Resources & Accreditation' },
   ];
@@ -296,7 +379,7 @@ const AdminPortal = () => {
         <div className="header">
           <div>
             <h1 className="page-title">
-              {tab === 'users' ? 'User Management' : tab === 'fundraising' ? 'Fundraising & Donations' : 'Resources & Accreditation'}
+              {tab === 'users' ? 'User Management' : tab === 'resumes' ? 'Student Resumes' : tab === 'fundraising' ? 'Fundraising & Donations' : 'Resources & Accreditation'}
             </h1>
             <p style={{ color: 'var(--text-muted)' }}>Institute Level — Full Control</p>
           </div>
@@ -305,6 +388,7 @@ const AdminPortal = () => {
 
         <div className="animate-slide-up delay-100">
           {tab === 'users' && <UserManagement token={user.token} stats={stats} />}
+          {tab === 'resumes' && <StudentResumes token={user.token} />}
           {tab === 'fundraising' && <FundraisingTab token={user.token} />}
           {tab === 'resources' && <ResourcesTab token={user.token} userName={user.name} />}
         </div>
