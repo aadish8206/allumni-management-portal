@@ -16,6 +16,11 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ msg: 'Please enter all required fields' });
     }
 
+    // Enforce college email for students and admins
+    if ((role === 'student' || role === 'admin') && !email.toLowerCase().endsWith('@pccoer.in')) {
+      return res.status(400).json({ msg: `Registration failed. ${role.charAt(0).toUpperCase() + role.slice(1)}s must use a @pccoer.in email address.` });
+    }
+
     // Check for existing user
     let user = await User.findOne({ email });
     if (user) {
