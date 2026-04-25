@@ -17,10 +17,10 @@ router.get('/me', auth, async (req, res) => {
 // Update current user profile
 router.put('/me', auth, async (req, res) => {
   try {
-    const { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName } = req.body;
+    const { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName, location, skills } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { $set: { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName } },
+      { $set: { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName, location, skills } },
       { new: true }
     ).select('-password');
     res.json(user);

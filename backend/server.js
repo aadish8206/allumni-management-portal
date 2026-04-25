@@ -23,6 +23,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const mentorshipRoutes = require('./routes/mentorshipRoutes');
 const donationRoutes = require('./routes/donationRoutes');
 const resourceRoutes = require('./routes/resourceRoutes');
+const campaignRoutes = require('./routes/campaignRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -32,6 +33,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/mentorship', mentorshipRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/campaigns', campaignRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/alumni_portal')

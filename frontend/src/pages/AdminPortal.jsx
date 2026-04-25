@@ -5,6 +5,7 @@ import {
   LogOut, CheckCircle, Trash2, Bell, BookOpen, TrendingUp, X, Home, Send
 } from 'lucide-react';
 import axios from 'axios';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 const api = (token) => axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
@@ -60,6 +61,13 @@ const UserManagement = ({ token, stats }) => {
   const filtered = filter === 'all' ? users : users.filter(u => u.role === filter);
   const roleColor = { admin: '#EF4444', student: '#10B981', alumni: '#F59E0B' };
 
+  const pieData = [
+    { name: 'Students', value: stats.totalStudents || 0 },
+    { name: 'Verified Alumni', value: stats.verifiedAlumni || 0 },
+    { name: 'Pending Alumni', value: (stats.totalAlumni || 0) - (stats.verifiedAlumni || 0) },
+  ];
+  const COLORS = ['#10B981', '#F59E0B', '#EF4444'];
+
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
@@ -69,7 +77,23 @@ const UserManagement = ({ token, stats }) => {
         <StatCard icon={Bell} label="Pending Verification" value={stats.pendingVerification || 0} color="#EF4444" />
       </div>
 
-      <div className="card">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <h3 style={{ marginBottom: '1rem', width: '100%', textAlign: 'left' }}>User Distribution</h3>
+          <div style={{ width: '100%', height: 250 }}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={pieData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                  {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                </Pie>
+                <Tooltip />
+                <Legend verticalAlign="bottom" height={36}/>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
           {['all', 'student', 'alumni', 'admin'].map(f => (
             <button key={f} onClick={() => setFilter(f)} className="btn" style={{
@@ -122,6 +146,7 @@ const UserManagement = ({ token, stats }) => {
           </table>
           {filtered.length === 0 && <p style={{ color: 'var(--text-muted)', padding: '1.5rem', textAlign: 'center' }}>No users found.</p>}
         </div>
+        </div>
       </div>
     </div>
   );
@@ -131,30 +156,81 @@ const UserManagement = ({ token, stats }) => {
 const FundraisingTab = ({ token }) => {
   const [donations, setDonations] = useState([]);
   const [stats, setStats] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
+  const [newCampaign, setNewCampaign] = useState({ title: '', description: '', targetAmount: '', deadline: '' });
 
   useEffect(() => {
     api(token).get('/donations').then(r => setDonations(r.data)).catch(console.error);
     api(token).get('/donations/stats').then(r => setStats(r.data)).catch(console.error);
+    api(token).get('/campaigns').then(r => setCampaigns(r.data)).catch(console.error);
   }, [token]);
 
   const total = donations.reduce((s, d) => s + d.amount, 0);
+
+  const createCampaign = async () => {
+    if (!newCampaign.title || !newCampaign.targetAmount) return alert('Title and Target Amount are required');
+    try {
+      const r = await api(token).post('/campaigns', newCampaign);
+      setCampaigns([r.data, ...campaigns]);
+      setNewCampaign({ title: '', description: '', targetAmount: '', deadline: '' });
+    } catch (err) {
+      console.error(err);
+      alert('Error creating campaign');
+    }
+  };
 
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
         <StatCard icon={DollarSign} label="Total Donations Received" value={`₹${total.toLocaleString()}`} color="#10B981" />
-        <StatCard icon={TrendingUp} label="Active Projects" value={stats.length} color="#4F46E5" />
+        <StatCard icon={TrendingUp} label="Active Campaigns" value={campaigns.filter(c => c.status === 'active').length} color="#4F46E5" />
+      </div>
+
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <h3 style={{ marginBottom: '1.5rem' }}>Create New Campaign</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Campaign Title</label>
+            <input className="form-input" value={newCampaign.title} onChange={e => setNewCampaign({...newCampaign, title: e.target.value})} placeholder="e.g. Library Fund" />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Target Amount (₹)</label>
+            <input type="number" className="form-input" value={newCampaign.targetAmount} onChange={e => setNewCampaign({...newCampaign, targetAmount: e.target.value})} placeholder="50000" />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Deadline</label>
+            <input type="date" className="form-input" value={newCampaign.deadline} onChange={e => setNewCampaign({...newCampaign, deadline: e.target.value})} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Description</label>
+            <input className="form-input" value={newCampaign.description} onChange={e => setNewCampaign({...newCampaign, description: e.target.value})} placeholder="Short description..." />
+          </div>
+          <button className="btn btn-primary" onClick={createCampaign}>Create</button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         <div className="card">
-          <h3 style={{ marginBottom: '1.5rem' }}>Project-wise Totals</h3>
-          {stats.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>No donation data yet.</p> : stats.map(s => (
-            <div key={s._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
-              <span style={{ fontWeight: 600 }}>{s._id}</span>
-              <span style={{ color: '#10B981', fontWeight: 700 }}>₹{s.total.toLocaleString()} ({s.count} donors)</span>
-            </div>
-          ))}
+          <h3 style={{ marginBottom: '1.5rem' }}>Active Campaigns</h3>
+          {campaigns.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>No campaigns created yet.</p> : campaigns.map(c => {
+            const progress = Math.min(100, Math.round((c.raisedAmount / c.targetAmount) * 100));
+            return (
+              <div key={c._id} style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: 600 }}>{c.title}</span>
+                  <span style={{ fontSize: '0.875rem', color: c.status === 'active' ? '#10B981' : 'var(--text-muted)' }}>{c.status.toUpperCase()}</span>
+                </div>
+                <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{c.description}</p>
+                <div style={{ width: '100%', height: '8px', background: '#E2E8F0', borderRadius: '4px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                  <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #10B981, #34D399)' }}></div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  <span>Raised: <strong>₹{c.raisedAmount.toLocaleString()}</strong></span>
+                  <span>Goal: <strong>₹{c.targetAmount.toLocaleString()}</strong></span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="card">

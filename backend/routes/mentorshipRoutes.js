@@ -26,7 +26,7 @@ router.post('/', [auth, checkRole(['alumni'])], async (req, res) => {
 // Get all available mentors (students + alumni can view)
 router.get('/', [auth, checkRole(['student', 'alumni', 'admin'])], async (req, res) => {
   try {
-    const mentorships = await Mentorship.find({ status: 'available' }).sort({ createdAt: -1 });
+    const mentorships = await Mentorship.find({ status: 'available' }).populate('mentor', 'skills location').sort({ createdAt: -1 });
     res.json(mentorships);
   } catch (err) {
     res.status(500).send('Server Error');
@@ -42,7 +42,18 @@ router.put('/:id/request', [auth, checkRole(['student'])], async (req, res) => {
       req.params.id,
       { mentee: req.user.id, menteeName: mentee.name, status: 'occupied' },
       { new: true }
-    );
+    ).populate('mentor', 'name email');
+    
+    // Send email notification
+    const { sendEmail } = require('../services/emailService');
+    if (mentorship.mentor && mentorship.mentor.email) {
+      sendEmail(
+        mentorship.mentor.email, 
+        'New Mentorship Request - Alumni Portal', 
+        `<p>Hi ${mentorship.mentor.name},</p><p>Great news! A student named <b>${mentee.name}</b> has requested your mentorship for your offered domain: <b>${mentorship.domain}</b>.</p><p>Please log in to the Alumni Portal to connect with them.</p>`
+      );
+    }
+
     res.json(mentorship);
   } catch (err) {
     res.status(500).send('Server Error');

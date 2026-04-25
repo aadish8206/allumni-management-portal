@@ -10,14 +10,28 @@ router.post('/', auth, async (req, res) => {
   try {
     const { receiverId, content, attachedResumeId } = req.body;
     const sender = await User.findById(req.user.id).select('name');
+    const receiver = await User.findById(receiverId).select('name email');
+    
     const message = new Message({
       sender: req.user.id,
       senderName: sender.name,
       receiver: receiverId,
+      receiverName: receiver ? receiver.name : undefined, // Optional, depending on schema, but good to have
       content,
       attachedResumeId
     });
     await message.save();
+
+    // Send email notification
+    const { sendEmail } = require('../services/emailService');
+    if (receiver && receiver.email) {
+      sendEmail(
+        receiver.email,
+        'New Message - Alumni Portal',
+        `<p>Hi ${receiver.name},</p><p>You have received a new message from <b>${sender.name}</b>:</p><blockquote style="border-left: 4px solid #ccc; padding-left: 10px; color: #555;"><i>"${content}"</i></blockquote><p>Please log in to your portal to reply.</p>`
+      );
+    }
+
     res.json(message);
   } catch (err) {
     res.status(500).send('Server Error');

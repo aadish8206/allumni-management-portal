@@ -26,11 +26,12 @@ const Modal = ({ title, onClose, children }) => (
 // ─── Batch Tracking / Alumni Directory ───────────────────────────────────────
 const BatchTracking = ({ token }) => {
   const [alumni, setAlumni] = useState([]);
-  const [filters, setFilters] = useState({ batch: '', department: '' });
+  const [filters, setFilters] = useState({ batch: '', department: '', company: '', role: '', location: '' });
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
   const [msgContent, setMsgContent] = useState('');
   const [msgSent, setMsgSent] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchAlumni = async () => {
     const params = {};
@@ -40,9 +41,15 @@ const BatchTracking = ({ token }) => {
     setAlumni(r.data);
   };
 
-  useEffect(() => { fetchAlumni(); }, [filters, token]);
+  useEffect(() => { fetchAlumni(); }, [filters.batch, filters.department, token]);
 
-  const filtered = alumni.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = alumni.filter(a => {
+    const matchName = a.name.toLowerCase().includes(search.toLowerCase());
+    const matchCompany = !filters.company || (a.company || '').toLowerCase().includes(filters.company.toLowerCase());
+    const matchRole = !filters.role || (a.jobTitle || '').toLowerCase().includes(filters.role.toLowerCase());
+    const matchLocation = !filters.location || (a.location || '').toLowerCase().includes(filters.location.toLowerCase());
+    return matchName && matchCompany && matchRole && matchLocation;
+  });
 
   const sendMsg = async () => {
     await api(token).post('/messages', { receiverId: selected._id, content: msgContent });
@@ -60,12 +67,23 @@ const BatchTracking = ({ token }) => {
             <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input className="form-input" style={{ paddingLeft: '2.5rem' }} placeholder="Search alumni by name..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <input className="form-input" style={{ width: '150px' }} placeholder="Batch (e.g. 2022)" value={filters.batch} onChange={e => setFilters({ ...filters, batch: e.target.value })} />
-          <select className="form-input" style={{ width: '180px' }} value={filters.department} onChange={e => setFilters({ ...filters, department: e.target.value })}>
-            <option value="">All Departments</option>
-            {depts.map(d => <option key={d} value={d}>{d}</option>)}
-          </select>
+          <button className="btn" style={{ background: showFilters ? 'var(--primary)' : 'var(--bg-color)', color: showFilters ? 'white' : 'var(--text-muted)' }} onClick={() => setShowFilters(!showFilters)}>
+            <Filter size={16} style={{ marginRight: 8 }} /> Filters
+          </button>
         </div>
+        
+        {showFilters && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+            <input className="form-input" placeholder="Batch (e.g. 2022)" value={filters.batch} onChange={e => setFilters({ ...filters, batch: e.target.value })} />
+            <select className="form-input" value={filters.department} onChange={e => setFilters({ ...filters, department: e.target.value })}>
+              <option value="">All Departments</option>
+              {depts.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <input className="form-input" placeholder="Company" value={filters.company} onChange={e => setFilters({ ...filters, company: e.target.value })} />
+            <input className="form-input" placeholder="Role/Job Title" value={filters.role} onChange={e => setFilters({ ...filters, role: e.target.value })} />
+            <input className="form-input" placeholder="Location" value={filters.location} onChange={e => setFilters({ ...filters, location: e.target.value })} />
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
@@ -125,8 +143,10 @@ const BatchTracking = ({ token }) => {
 const MentorshipAccess = ({ token }) => {
   const [mentors, setMentors] = useState([]);
   const [requested, setRequested] = useState({});
+  const [studentSkills, setStudentSkills] = useState([]);
 
   useEffect(() => {
+    api(token).get('/users/me').then(r => setStudentSkills(r.data.skills || [])).catch(console.error);
     api(token).get('/mentorship').then(r => setMentors(r.data)).catch(console.error);
   }, [token]);
 
@@ -136,22 +156,35 @@ const MentorshipAccess = ({ token }) => {
     setMentors(m => m.filter(x => x._id !== id));
   };
 
+  const calculateMatch = (mentorSkills) => {
+    if (!studentSkills.length || !mentorSkills || !mentorSkills.length) return 0;
+    const overlap = mentorSkills.filter(s => studentSkills.some(ss => ss.toLowerCase() === s.toLowerCase()));
+    return Math.round((overlap.length / studentSkills.length) * 100);
+  };
+
+  const sortedMentors = [...mentors].sort((a, b) => calculateMatch(b.mentor?.skills) - calculateMatch(a.mentor?.skills));
+
   return (
     <div>
       <div style={{ marginBottom: '1.5rem' }}>
         <h3>Available Mentors</h3>
-        <p style={{ color: 'var(--text-muted)' }}>Alumni who have offered to mentor current students for career guidance.</p>
+        <p style={{ color: 'var(--text-muted)' }}>Alumni who have offered to mentor current students for career guidance. Mentors are sorted by how well their skills match yours!</p>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        {mentors.map(m => (
+        {sortedMentors.map(m => {
+          const matchScore = calculateMatch(m.mentor?.skills);
+          return (
           <div key={m._id} className="card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
               <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'linear-gradient(135deg, #F59E0B, #EF4444)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 700 }}>
                 {m.mentorName?.charAt(0).toUpperCase()}
               </div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <h4 style={{ margin: 0 }}>{m.mentorName}</h4>
-                <span className="badge badge-alumni">Alumni</span>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                  <span className="badge badge-alumni">Alumni</span>
+                  {matchScore > 0 && <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10B981', background: '#d1fae5', padding: '0.1rem 0.5rem', borderRadius: '9999px' }}>{matchScore}% Match</span>}
+                </div>
               </div>
             </div>
             <div style={{ marginBottom: '1rem' }}>
@@ -159,6 +192,9 @@ const MentorshipAccess = ({ token }) => {
                 <Star size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />{m.domain}
               </span>
             </div>
+            {m.mentor?.skills && m.mentor.skills.length > 0 && (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginBottom: '0.5rem' }}><strong>Skills:</strong> {m.mentor.skills.join(', ')}</p>
+            )}
             {m.description && <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>{m.description}</p>}
             <button
               onClick={() => request(m._id)}
@@ -169,7 +205,7 @@ const MentorshipAccess = ({ token }) => {
               {requested[m._id] ? '✓ Request Sent' : 'Request Mentorship'}
             </button>
           </div>
-        ))}
+        )})}
         {mentors.length === 0 && <p style={{ color: 'var(--text-muted)', gridColumn: '1/-1', textAlign: 'center', padding: '2rem' }}>No mentors available right now. Check back later.</p>}
       </div>
     </div>
@@ -259,7 +295,11 @@ const StudentProfile = ({ token }) => {
   const save = async () => {
     setUploading(true);
     try {
-      const r = await api(token).put('/users/me', form);
+      const payload = { ...form };
+      if (typeof payload.skills === 'string') {
+        payload.skills = payload.skills.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      const r = await api(token).put('/users/me', payload);
       setProfile(r.data);
       setEditing(false);
     } catch (err) {
@@ -283,6 +323,7 @@ const StudentProfile = ({ token }) => {
             <div>
               <h2 style={{ margin: 0 }}>{profile.name}</h2>
               <span className="badge badge-student" style={{ marginTop: '0.5rem', display: 'inline-block' }}>Student • {profile.batch || 'N/A'} • {profile.department || 'N/A'}</span>
+              {profile.location && <p style={{ margin: '0.25rem 0 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>📍 {profile.location}</p>}
             </div>
           </div>
           <button onClick={() => setEditing(!editing)} className="btn" style={{ background: editing ? '#fee2e2' : 'var(--bg-color)', color: editing ? '#EF4444' : 'var(--text-muted)' }}>
@@ -310,6 +351,14 @@ const StudentProfile = ({ token }) => {
             <div className="form-group">
               <label className="form-label">Phone</label>
               <input type="tel" className="form-input" value={form.phone || ''} onChange={e => setForm({ ...form, phone: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Location</label>
+              <input type="text" className="form-input" value={form.location || ''} onChange={e => setForm({ ...form, location: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Skills (comma separated)</label>
+              <input type="text" className="form-input" value={Array.isArray(form.skills) ? form.skills.join(', ') : form.skills || ''} onChange={e => setForm({ ...form, skills: e.target.value })} placeholder="e.g. React, UI/UX" />
             </div>
           </div>
           

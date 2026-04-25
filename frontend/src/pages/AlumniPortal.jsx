@@ -195,7 +195,11 @@ const ProfessionalProfile = ({ token }) => {
   }, [token]);
 
   const save = async () => {
-    const r = await api(token).put('/users/me', form);
+    const payload = { ...form };
+    if (typeof payload.skills === 'string') {
+      payload.skills = payload.skills.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    const r = await api(token).put('/users/me', payload);
     setProfile(r.data);
     setEditing(false);
   };
@@ -212,7 +216,7 @@ const ProfessionalProfile = ({ token }) => {
             </div>
             <div>
               <h2 style={{ margin: 0 }}>{profile.name}</h2>
-              <p style={{ margin: 0, color: 'var(--text-muted)' }}>{profile.jobTitle || 'No job title set'} {profile.company ? `at ${profile.company}` : ''}</p>
+              <p style={{ margin: 0, color: 'var(--text-muted)' }}>{profile.jobTitle || 'No job title set'} {profile.company ? `at ${profile.company}` : ''} {profile.location ? `• ${profile.location}` : ''}</p>
               <span className="badge badge-alumni" style={{ marginTop: '0.5rem', display: 'inline-block' }}>Alumni • {profile.batch || 'N/A'} • {profile.department || 'N/A'}</span>
             </div>
           </div>
@@ -230,6 +234,7 @@ const ProfessionalProfile = ({ token }) => {
               ['Full Name', 'name', 'text'],
               ['Job Title', 'jobTitle', 'text'],
               ['Company', 'company', 'text'],
+              ['Location', 'location', 'text'],
               ['Phone', 'phone', 'tel'],
               ['Batch (Year)', 'batch', 'text'],
               ['Department', 'department', 'text'],
@@ -243,6 +248,10 @@ const ProfessionalProfile = ({ token }) => {
           <div className="form-group">
             <label className="form-label">LinkedIn URL</label>
             <input type="url" className="form-input" value={form.linkedin || ''} onChange={e => setForm({ ...form, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Skills (comma separated)</label>
+            <input type="text" className="form-input" value={Array.isArray(form.skills) ? form.skills.join(', ') : form.skills || ''} onChange={e => setForm({ ...form, skills: e.target.value })} placeholder="e.g. React, Node.js, Project Management" />
           </div>
           <div className="form-group">
             <label className="form-label">Bio</label>
@@ -281,10 +290,12 @@ const GivingBack = ({ token, userName }) => {
   const [mentorForm, setMentorForm] = useState({ domain: '', description: '' });
   const [donateForm, setDonateForm] = useState({ amount: '', project: '', message: '' });
   const [myJobs, setMyJobs] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
     api(token).get('/jobs').then(r => setMyJobs(r.data)).catch(console.error);
+    api(token).get('/campaigns').then(r => setCampaigns(r.data)).catch(console.error);
   }, [token]);
 
   const submitJob = async () => {
@@ -354,6 +365,29 @@ const GivingBack = ({ token, userName }) => {
         </div>
       </div>
 
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <h3 style={{ marginBottom: '1.5rem' }}>Active Fundraising Campaigns</h3>
+        {campaigns.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>No active campaigns right now.</p> : campaigns.map(c => {
+          const progress = Math.min(100, Math.round((c.raisedAmount / c.targetAmount) * 100));
+          return (
+            <div key={c._id} style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span style={{ fontWeight: 600 }}>{c.title}</span>
+                <button className="btn" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', background: '#10B981', color: 'white' }} onClick={() => { setDonateForm({...donateForm, project: c.title}); setShowDonate(true); }}>Donate Now</button>
+              </div>
+              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{c.description}</p>
+              <div style={{ width: '100%', height: '8px', background: '#E2E8F0', borderRadius: '4px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #10B981, #34D399)' }}></div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                <span>Raised: <strong>₹{c.raisedAmount.toLocaleString()}</strong></span>
+                <span>Goal: <strong>₹{c.targetAmount.toLocaleString()}</strong></span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       <div className="card">
         <h3 style={{ marginBottom: '1.5rem' }}>Your Posted Opportunities</h3>
         {myJobs.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>You haven't posted any opportunities yet.</p> :
@@ -400,7 +434,18 @@ const GivingBack = ({ token, userName }) => {
 
       {showDonate && (
         <Modal title="Donate to Project" onClose={() => setShowDonate(false)}>
-          <div className="form-group"><label className="form-label">Project Name</label><input className="form-input" placeholder="e.g. Computer Lab Upgrade, Scholarship Fund..." value={donateForm.project} onChange={e => setDonateForm({ ...donateForm, project: e.target.value })} /></div>
+          <div className="form-group">
+            <label className="form-label">Select Campaign</label>
+            {campaigns.length > 0 ? (
+              <select className="form-input" value={donateForm.project} onChange={e => setDonateForm({ ...donateForm, project: e.target.value })}>
+                <option value="">-- Choose a Campaign --</option>
+                {campaigns.filter(c => c.status === 'active').map(c => <option key={c._id} value={c.title}>{c.title}</option>)}
+                <option value="General Fund">General Fund</option>
+              </select>
+            ) : (
+              <input className="form-input" placeholder="e.g. Computer Lab Upgrade, Scholarship Fund..." value={donateForm.project} onChange={e => setDonateForm({ ...donateForm, project: e.target.value })} />
+            )}
+          </div>
           <div className="form-group"><label className="form-label">Amount (₹)</label><input type="number" className="form-input" min="1" value={donateForm.amount} onChange={e => setDonateForm({ ...donateForm, amount: e.target.value })} /></div>
           <div className="form-group"><label className="form-label">Message (optional)</label><textarea className="form-input" rows={3} value={donateForm.message} onChange={e => setDonateForm({ ...donateForm, message: e.target.value })} /></div>
           <button className="btn btn-primary" style={{ width: '100%', background: '#10B981' }} onClick={submitDonate}>Confirm Donation</button>

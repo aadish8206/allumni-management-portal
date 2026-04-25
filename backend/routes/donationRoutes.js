@@ -18,6 +18,10 @@ router.post('/', [auth, checkRole(['alumni'])], async (req, res) => {
       message
     });
     await donation.save();
+    
+    const Campaign = require('../models/Campaign');
+    await Campaign.findOneAndUpdate({ title: project }, { $inc: { raisedAmount: amount } });
+
     res.json(donation);
   } catch (err) {
     res.status(500).send('Server Error');

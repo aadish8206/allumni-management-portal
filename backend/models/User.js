@@ -13,6 +13,8 @@ const UserSchema = new mongoose.Schema({
   bio: { type: String },
   phone: { type: String },
   linkedin: { type: String },
+  location: { type: String },
+  skills: [{ type: String }],
   isVerified: { type: Boolean, default: false },
   resetPasswordToken: String,
   resetPasswordExpire: Date,

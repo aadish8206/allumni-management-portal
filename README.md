@@ -46,23 +46,25 @@ The portal provides a tailored experience for three distinct user roles:
 
 ### 🛡️ Admin
 - Full control over users, events, and resources
-- Manage job postings and mentorship programmes
-- Monitor donations and community messages
+- **Data Visualizations:** Interactive Recharts-powered dashboards tracking user distributions and active campaigns
+- Manage and create **Fundraising Campaigns** with targets and deadlines
+- Monitor platform activity, job postings, and community messages
 
 ### 🎓 Alumni
-- Post and browse **job opportunities**
+- Post and browse **job & internship opportunities** (with "Job Referral" badges)
 - Share & access **learning resources**
-- Offer **mentorship** to current students
-- Donate to the institution
-- Connect via **real-time messaging**
-- Participate in **events**
+- Offer **mentorship** by showcasing specific domain expertise
+- Support **Active Campaigns** via an intuitive donation system with progress tracking
+- Connect via **real-time messaging** with Email Notifications
+- Organize and participate in **Batch Reunions & events**
 
 ### 🧑‍🎓 Students
-- Browse **job listings** posted by alumni
-- Request **mentorship** from alumni
+- Browse **job listings** posted by alumni with visual badges for referrals
+- Access a smart **Alumni Directory** with deep filtering (Company, Role, Location)
+- Discover Mentors powered by a **Skill-Match Scoring Algorithm**
 - Access **resources** shared by the community
 - Register for **events**
-- Send messages within the portal
+- Network effectively via the integrated messaging system
 
 ---
 
@@ -70,8 +72,8 @@ The portal provides a tailored experience for three distinct user roles:
 
 | Layer      | Technology                              |
 |------------|------------------------------------------|
-| **Frontend** | React 19, React Router v7, Vite 8, Lucide React, Axios |
-| **Backend**  | Node.js, Express 5, Mongoose 9         |
+| **Frontend** | React 19, React Router v7, Vite 8, Lucide React, Recharts, Axios |
+| **Backend**  | Node.js, Express 5, Mongoose 9, Nodemailer |
 | **Database** | MongoDB                                |
 | **Auth**     | JWT (jsonwebtoken), bcryptjs           |
 | **Supplementary** | PHP (form handling & string utilities) |
@@ -86,6 +88,7 @@ The portal provides a tailored experience for three distinct user roles:
 - **`mongoose`** (^9.4.1) - MongoDB object modeling for schemas
 - **`jsonwebtoken`** (^9.0.3) - Token-based authentication
 - **`bcryptjs`** (^3.0.3) - Password hashing and security
+- **`nodemailer`** (^6.9.16) - Email notification delivery
 - **`cors`** (^2.8.6) - Cross-origin resource sharing
 - **`dotenv`** (^17.4.2) - Environment variable management
 
@@ -94,6 +97,7 @@ The portal provides a tailored experience for three distinct user roles:
 - **`react-router-dom`** (^7.14.1) - Client-side routing
 - **`axios`** (^1.15.0) - Promise-based HTTP client for API requests
 - **`lucide-react`** (^1.8.0) - Clean, customizable icon library
+- **`recharts`** (^2.15.0) - Data visualization library for dashboards
 
 ### Dev Tooling
 - **`vite`** (^8.0.4) - Fast frontend build tool and dev server
