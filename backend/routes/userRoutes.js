@@ -64,7 +64,7 @@ router.delete('/admin/users/:id', [auth, checkRole(['admin'])], async (req, res)
 router.get('/directory', [auth, checkRole(['student', 'alumni', 'admin'])], async (req, res) => {
   try {
     const { batch, department } = req.query;
-    let query = { role: 'alumni', isVerified: true };
+    let query = { role: 'alumni', isVerified: { $ne: false } };
     if (batch) query.batch = batch;
     if (department) query.department = department;
     const alumni = await User.find(query).select('-password').sort({ createdAt: -1 });
@@ -89,7 +89,7 @@ router.get('/admin/stats', [auth, checkRole(['admin'])], async (req, res) => {
   try {
     const totalAlumni = await User.countDocuments({ role: 'alumni' });
     const totalStudents = await User.countDocuments({ role: 'student' });
-    const verifiedAlumni = await User.countDocuments({ role: 'alumni', isVerified: true });
+    const verifiedAlumni = await User.countDocuments({ role: 'alumni', isVerified: { $ne: false } });
     const pendingVerification = await User.countDocuments({ isVerified: false, role: { $ne: 'admin' } });
     res.json({ totalAlumni, totalStudents, verifiedAlumni, pendingVerification });
   } catch (err) {
