@@ -108,4 +108,15 @@ router.get('/resume/:id', [auth, checkRole(['admin', 'alumni'])], async (req, re
   }
 });
 
+// ADMIN: Delete student's resume
+router.delete('/admin/resume/:id', [auth, checkRole(['admin'])], async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { $unset: { resumeBase64: "", resumeFileName: "" } });
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    res.json({ msg: 'Resume deleted successfully' });
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

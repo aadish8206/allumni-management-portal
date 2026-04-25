@@ -99,10 +99,10 @@ const UserManagement = ({ token, stats }) => {
                   <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.batch || '-'}</td>
                   <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.department || '-'}</td>
                   <td style={{ padding: '0.75rem 1rem' }}>
-                    {u.isVerified
+                    {u.role === 'admin' ? '-' : (u.isVerified
                       ? <span style={{ color: '#10B981', fontWeight: 600, fontSize: '0.875rem' }}>✓ Verified</span>
                       : <span style={{ color: '#F59E0B', fontWeight: 600, fontSize: '0.875rem' }}>Pending</span>
-                    }
+                    )}
                   </td>
                   <td style={{ padding: '0.75rem 1rem' }}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -277,6 +277,17 @@ const StudentResumes = ({ token }) => {
     alert('Resume forwarded successfully!');
   };
 
+  const deleteResume = async (id) => {
+    if (!confirm('Are you sure you want to delete this resume?')) return;
+    try {
+      await api(token).delete(`/users/admin/resume/${id}`);
+      setStudents(students.filter(s => s._id !== id));
+      alert('Resume deleted successfully.');
+    } catch (err) {
+      alert('Could not delete resume.');
+    }
+  };
+
   return (
     <div>
       <div className="card">
@@ -299,8 +310,11 @@ const StudentResumes = ({ token }) => {
                   <a href={s.resumeBase64} download={s.resumeFileName || 'resume.pdf'} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>View PDF</a>
                 </td>
                 <td style={{ padding: '0.75rem 1rem' }}>
-                  <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={() => setForwarding(s)}>
+                  <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', marginRight: '0.5rem' }} onClick={() => setForwarding(s)}>
                     Forward to Alumni
+                  </button>
+                  <button onClick={() => deleteResume(s._id)} style={{ background: '#fee2e2', color: '#EF4444', border: 'none', borderRadius: '0.375rem', padding: '0.4rem 0.6rem', cursor: 'pointer', fontSize: '0.8rem' }} title="Delete Resume">
+                    <Trash2 size={14} />
                   </button>
                 </td>
               </tr>
