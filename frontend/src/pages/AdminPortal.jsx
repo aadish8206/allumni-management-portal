@@ -42,6 +42,7 @@ const Modal = ({ title, onClose, children }) => (
 const UserManagement = ({ token, stats }) => {
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     api(token).get('/users/admin/users').then(r => setUsers(r.data)).catch(console.error);
@@ -58,7 +59,12 @@ const UserManagement = ({ token, stats }) => {
     setUsers(u => u.filter(x => x._id !== id));
   };
 
-  const filtered = filter === 'all' ? users : users.filter(u => u.role === filter);
+  const filtered = users.filter(u => {
+    const matchesFilter = filter === 'all' || u.role === filter;
+    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || 
+                          u.email.toLowerCase().includes(search.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
   const roleColor = { admin: '#EF4444', student: '#10B981', alumni: '#F59E0B' };
 
   const pieData = [
@@ -94,14 +100,27 @@ const UserManagement = ({ token, stats }) => {
         </div>
 
         <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-          {['all', 'student', 'alumni', 'admin'].map(f => (
-            <button key={f} onClick={() => setFilter(f)} className="btn" style={{
-              padding: '0.5rem 1rem', fontSize: '0.875rem',
-              background: filter === f ? 'var(--primary)' : 'var(--bg-color)',
-              color: filter === f ? 'white' : 'var(--text-muted)'
-            }}>{f.charAt(0).toUpperCase() + f.slice(1)}</button>
-          ))}
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {['all', 'student', 'alumni', 'admin'].map(f => (
+              <button key={f} onClick={() => setFilter(f)} className="btn" style={{
+                padding: '0.5rem 1rem', fontSize: '0.875rem',
+                background: filter === f ? 'var(--primary)' : 'var(--bg-color)',
+                color: filter === f ? 'white' : 'var(--text-muted)'
+              }}>{f.charAt(0).toUpperCase() + f.slice(1)}</button>
+            ))}
+          </div>
+          <div style={{ position: 'relative' }}>
+            <input 
+              type="text" 
+              placeholder="Search by name or email..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)}
+              className="form-input"
+              style={{ padding: '0.5rem 1rem', paddingLeft: '2.5rem', marginBottom: 0, width: '250px' }}
+            />
+            <Users size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
