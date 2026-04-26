@@ -290,11 +290,13 @@ const GivingBack = ({ token, userName }) => {
   const [mentorForm, setMentorForm] = useState({ domain: '', description: '' });
   const [donateForm, setDonateForm] = useState({ amount: '', project: '', message: '' });
   const [myJobs, setMyJobs] = useState([]);
+  const [myMentorships, setMyMentorships] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
     api(token).get('/jobs').then(r => setMyJobs(r.data)).catch(console.error);
+    api(token).get('/mentorship/me').then(r => setMyMentorships(r.data)).catch(console.error);
     api(token).get('/campaigns').then(r => setCampaigns(r.data)).catch(console.error);
   }, [token]);
 
@@ -306,7 +308,8 @@ const GivingBack = ({ token, userName }) => {
   };
 
   const submitMentor = async () => {
-    await api(token).post('/mentorship', mentorForm);
+    const r = await api(token).post('/mentorship', mentorForm);
+    setMyMentorships(m => [r.data, ...m]);
     setSuccess('mentor'); setShowMentor(false); setMentorForm({ domain: '', description: '' });
     setTimeout(() => setSuccess(''), 3000);
   };
@@ -363,6 +366,35 @@ const GivingBack = ({ token, userName }) => {
             <IndianRupee size={16} style={{ marginRight: 8 }} /> Make a Donation
           </button>
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <h3 style={{ marginBottom: '1.5rem' }}>My Mentees & Mentorship Slots</h3>
+        {myMentorships.length === 0 ? <p style={{ color: 'var(--text-muted)' }}>You haven't offered mentorship yet.</p> :
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+            {myMentorships.map(m => (
+              <div key={m._id} style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '0.75rem', background: m.status === 'occupied' ? '#f0f9ff' : 'white' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: m.status === 'occupied' ? '#0284c7' : '#64748b', background: m.status === 'occupied' ? '#e0f2fe' : '#f1f5f9', padding: '0.1rem 0.5rem', borderRadius: '4px' }}>
+                    {m.status.toUpperCase()}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{m.domain}</span>
+                </div>
+                {m.status === 'occupied' ? (
+                  <div>
+                    <p style={{ margin: '0.5rem 0 0.25rem 0', fontSize: '0.875rem' }}>Mentee: <strong>{m.mentee?.name || m.menteeName}</strong></p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>{m.mentee?.email}</p>
+                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #e0f2fe', fontSize: '0.75rem' }}>
+                      {m.mentee?.department} • Class of {m.mentee?.batch}
+                    </div>
+                  </div>
+                ) : (
+                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Waiting for student request...</p>
+                )}
+              </div>
+            ))}
+          </div>
+        }
       </div>
 
       <div className="card" style={{ marginBottom: '2rem' }}>

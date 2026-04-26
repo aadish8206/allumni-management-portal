@@ -142,12 +142,14 @@ const BatchTracking = ({ token }) => {
 // ─── Mentorship Access ────────────────────────────────────────────────────────
 const MentorshipAccess = ({ token }) => {
   const [mentors, setMentors] = useState([]);
+  const [myMentorships, setMyMentorships] = useState([]);
   const [requested, setRequested] = useState({});
   const [studentSkills, setStudentSkills] = useState([]);
 
   useEffect(() => {
     api(token).get('/users/me').then(r => setStudentSkills(r.data.skills || [])).catch(console.error);
     api(token).get('/mentorship').then(r => setMentors(r.data)).catch(console.error);
+    api(token).get('/mentorship/me').then(r => setMyMentorships(r.data)).catch(console.error);
   }, [token]);
 
   const request = async (id) => {
@@ -166,6 +168,31 @@ const MentorshipAccess = ({ token }) => {
 
   return (
     <div>
+      {myMentorships.length > 0 && (
+        <div style={{ marginBottom: '2.5rem' }}>
+          <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>My Active Mentorships</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {myMentorships.map(m => (
+              <div key={m._id} className="card" style={{ border: '2px solid var(--primary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 700 }}>
+                    {m.mentor?.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ margin: 0 }}>{m.mentor?.name}</h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{m.mentor?.email}</p>
+                  </div>
+                </div>
+                <div style={{ background: '#f0f4ff', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                  <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--primary)' }}>Domain: {m.domain}</p>
+                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Status: Active Connection</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={{ marginBottom: '1.5rem' }}>
         <h3>Available Mentors</h3>
         <p style={{ color: 'var(--text-muted)' }}>Alumni who have offered to mentor current students for career guidance. Mentors are sorted by how well their skills match yours!</p>

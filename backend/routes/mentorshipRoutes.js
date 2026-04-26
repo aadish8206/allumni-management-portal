@@ -33,6 +33,22 @@ router.get('/', [auth, checkRole(['student', 'alumni', 'admin'])], async (req, r
   }
 });
 
+// Get my mentorships (as alumni or student)
+router.get('/me', auth, async (req, res) => {
+  try {
+    const mentorships = await Mentorship.find({
+      $or: [{ mentor: req.user.id }, { mentee: req.user.id }]
+    })
+    .populate('mentor', 'name email skills location')
+    .populate('mentee', 'name email department batch')
+    .sort({ updatedAt: -1 });
+    
+    res.json(mentorships);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
 // Student requests mentorship slot
 router.put('/:id/request', [auth, checkRole(['student'])], async (req, res) => {
   try {

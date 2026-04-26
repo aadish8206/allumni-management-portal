@@ -61,8 +61,8 @@ const UserManagement = ({ token, stats }) => {
 
   const filtered = users.filter(u => {
     const matchesFilter = filter === 'all' || u.role === filter;
-    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || 
-                          u.email.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
   const roleColor = { admin: '#EF4444', student: '#10B981', alumni: '#F59E0B' };
@@ -93,78 +93,78 @@ const UserManagement = ({ token, stats }) => {
                   {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />
-                <Legend verticalAlign="bottom" height={36}/>
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {['all', 'student', 'alumni', 'admin'].map(f => (
-              <button key={f} onClick={() => setFilter(f)} className="btn" style={{
-                padding: '0.5rem 1rem', fontSize: '0.875rem',
-                background: filter === f ? 'var(--primary)' : 'var(--bg-color)',
-                color: filter === f ? 'white' : 'var(--text-muted)'
-              }}>{f.charAt(0).toUpperCase() + f.slice(1)}</button>
-            ))}
-          </div>
-          <div style={{ position: 'relative' }}>
-            <input 
-              type="text" 
-              placeholder="Search by name or email..." 
-              value={search} 
-              onChange={(e) => setSearch(e.target.value)}
-              className="form-input"
-              style={{ padding: '0.5rem 1rem', paddingLeft: '2.5rem', marginBottom: 0, width: '250px' }}
-            />
-            <Users size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-          </div>
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                {['Name', 'Email', 'Role', 'Batch', 'Department', 'Status', 'Actions'].map(h => (
-                  <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 600 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(u => (
-                <tr key={u._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{u.name}</td>
-                  <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>{u.email}</td>
-                  <td style={{ padding: '0.75rem 1rem' }}>
-                    <span className={`badge badge-${u.role}`}>{u.role}</span>
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.batch || '-'}</td>
-                  <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.department || '-'}</td>
-                  <td style={{ padding: '0.75rem 1rem' }}>
-                    {u.role === 'admin' ? '-' : (u.isVerified
-                      ? <span style={{ color: '#10B981', fontWeight: 600, fontSize: '0.875rem' }}>✓ Verified</span>
-                      : <span style={{ color: '#F59E0B', fontWeight: 600, fontSize: '0.875rem' }}>Pending</span>
-                    )}
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      {!u.isVerified && u.role !== 'admin' && (
-                        <button onClick={() => verify(u._id)} style={{ background: '#d1fae5', color: '#10B981', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
-                          Verify
-                        </button>
-                      )}
-                      <button onClick={() => deleteUser(u._id)} style={{ background: '#fee2e2', color: '#EF4444', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {['all', 'student', 'alumni', 'admin'].map(f => (
+                <button key={f} onClick={() => setFilter(f)} className="btn" style={{
+                  padding: '0.5rem 1rem', fontSize: '0.875rem',
+                  background: filter === f ? 'var(--primary)' : 'var(--bg-color)',
+                  color: filter === f ? 'white' : 'var(--text-muted)'
+                }}>{f.charAt(0).toUpperCase() + f.slice(1)}</button>
               ))}
-            </tbody>
-          </table>
-          {filtered.length === 0 && <p style={{ color: 'var(--text-muted)', padding: '1.5rem', textAlign: 'center' }}>No users found.</p>}
-        </div>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="form-input"
+                style={{ padding: '0.5rem 1rem', paddingLeft: '2.5rem', marginBottom: 0, width: '250px' }}
+              />
+              <Users size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            </div>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+                  {['Name', 'Email', 'Role', 'Batch', 'Department', 'Status', 'Actions'].map(h => (
+                    <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 600 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(u => (
+                  <tr key={u._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{u.name}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>{u.email}</td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <span className={`badge badge-${u.role}`}>{u.role}</span>
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.batch || '-'}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.department || '-'}</td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      {u.role === 'admin' ? '-' : (u.isVerified
+                        ? <span style={{ color: '#10B981', fontWeight: 600, fontSize: '0.875rem' }}>✓ Verified</span>
+                        : <span style={{ color: '#F59E0B', fontWeight: 600, fontSize: '0.875rem' }}>Pending</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        {!u.isVerified && u.role !== 'admin' && (
+                          <button onClick={() => verify(u._id)} style={{ background: '#d1fae5', color: '#10B981', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+                            Verify
+                          </button>
+                        )}
+                        <button onClick={() => deleteUser(u._id)} style={{ background: '#fee2e2', color: '#EF4444', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filtered.length === 0 && <p style={{ color: 'var(--text-muted)', padding: '1.5rem', textAlign: 'center' }}>No users found.</p>}
+          </div>
         </div>
       </div>
     </div>
@@ -210,19 +210,19 @@ const FundraisingTab = ({ token }) => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Campaign Title</label>
-            <input className="form-input" value={newCampaign.title} onChange={e => setNewCampaign({...newCampaign, title: e.target.value})} placeholder="e.g. Library Fund" />
+            <input className="form-input" value={newCampaign.title} onChange={e => setNewCampaign({ ...newCampaign, title: e.target.value })} placeholder="e.g. Library Fund" />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Target Amount (₹)</label>
-            <input type="number" className="form-input" value={newCampaign.targetAmount} onChange={e => setNewCampaign({...newCampaign, targetAmount: e.target.value})} placeholder="50000" />
+            <input type="number" className="form-input" value={newCampaign.targetAmount} onChange={e => setNewCampaign({ ...newCampaign, targetAmount: e.target.value })} placeholder="50000" />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Deadline</label>
-            <input type="date" className="form-input" value={newCampaign.deadline} onChange={e => setNewCampaign({...newCampaign, deadline: e.target.value})} />
+            <input type="date" className="form-input" value={newCampaign.deadline} onChange={e => setNewCampaign({ ...newCampaign, deadline: e.target.value })} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Description</label>
-            <input className="form-input" value={newCampaign.description} onChange={e => setNewCampaign({...newCampaign, description: e.target.value})} placeholder="Short description..." />
+            <input className="form-input" value={newCampaign.description} onChange={e => setNewCampaign({ ...newCampaign, description: e.target.value })} placeholder="Short description..." />
           </div>
           <button className="btn btn-primary" onClick={createCampaign}>Create</button>
         </div>
