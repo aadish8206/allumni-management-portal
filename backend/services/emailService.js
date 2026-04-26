@@ -1,15 +1,16 @@
 const nodemailer = require('nodemailer');
 
 // Configure this in .env
+// For Gmail, we use 'service: gmail' for better reliability
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: process.env.SMTP_PORT || 587,
-  secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
+  service: 'gmail',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS
   }
 });
+
+console.log(`[EMAIL SERVICE] Initialized for: ${process.env.SMTP_USER}`);
 
 /**
  * Send an email
