@@ -6,8 +6,8 @@ const User = require('./models/User');
 
 dotenv.config();
 
-// Small dummy PDF base64 string
-const dummyPdf = 'data:application/pdf;base64,JVBERi0xLjcKCjEgMCBvYmogPDwgL1R5cGUgL0NhdGFsb2cgL1BhZ2VzIDIgMCBSID4+IGVuZG9iagoyIDAgb2JqIDw8IC9UeXBlIC9QYWdlcyAvS2lkcyBbIDMgMCBSIF0gL0NvdW50IDEgPj4gZW5kb2JqCjMgMCBvYmogPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWyAwIDAgNjEyIDc5MiBdIC9Db250ZW50cyA0IDAgUiA+PiBlbmRvYmoKNCAwIG9i <lines_truncated> ';
+// Valid 1-page minimal PDF
+const validPdf = 'data:application/pdf;base64,JVBERi0xLjEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovUmVzb3VyY2VzIDw8Ci9Gb250IDw8Ci9GMSA0IDAgUgo+Pgo+PgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgo3MiA3MDIgVGQKKEFsdW1uaSBQb3J0YWwgU2FtcGxlIERvY3VtZW50KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxOCAwMDAwMCBuIAowMDAwMDAwMDc3IDAwMDAwIG4gCjAwMDAwMDAxMzggMDAwMDAgbiAKMDAwMDAwMDMwMSAwMDAwMCBuIAowMDAwMDAwMzc5IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNgovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDc0CiUlRU9G';
 
 const seed = async () => {
   try {
@@ -20,7 +20,6 @@ const seed = async () => {
       process.exit(1);
     }
 
-    // Clear existing samples first to avoid duplicates
     await Resource.deleteMany({ uploadedByName: admin.name });
 
     const sampleResources = [
@@ -30,7 +29,7 @@ const seed = async () => {
         type: 'note',
         uploadedBy: admin._id,
         uploadedByName: admin.name,
-        fileUrl: dummyPdf // Added dummy file
+        fileUrl: validPdf
       },
       {
         title: 'New Innovation Lab Opening',
@@ -38,7 +37,7 @@ const seed = async () => {
         type: 'update',
         uploadedBy: admin._id,
         uploadedByName: admin.name,
-        fileUrl: dummyPdf // Added dummy file
+        fileUrl: validPdf
       },
       {
         title: 'Annual Alumni Meet 2024 Agenda',
@@ -46,12 +45,12 @@ const seed = async () => {
         type: 'announcement',
         uploadedBy: admin._id,
         uploadedByName: admin.name,
-        fileUrl: dummyPdf // Added dummy file
+        fileUrl: validPdf
       }
     ];
 
     await Resource.insertMany(sampleResources);
-    console.log('Sample data with file attachments seeded successfully!');
+    console.log('Sample data with VALID PDF attachments seeded successfully!');
     process.exit(0);
   } catch (err) {
     console.error('Error seeding data:', err);

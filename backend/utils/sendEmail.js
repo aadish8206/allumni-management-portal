@@ -1,26 +1,16 @@
-const nodemailer = require('nodemailer');
+const { sendEmail: serviceSendEmail } = require('../services/emailService');
 
+/**
+ * Compatibility wrapper for the original sendEmail utility
+ * @param {Object} options - Email options { email, subject, message, bcc }
+ */
 const sendEmail = async (options) => {
-  // Create a transporter
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
-
-  // Define email options
-  const mailOptions = {
-    from: `"Alumni Portal" <${process.env.EMAIL_USER}>`,
-    to: options.email,
-    bcc: options.bcc,
-    subject: options.subject,
-    html: options.message
-  };
-
-  // Send the email
-  await transporter.sendMail(mailOptions);
+  return await serviceSendEmail(
+    options.email,
+    options.subject,
+    options.message,
+    options.bcc
+  );
 };
 
 module.exports = sendEmail;

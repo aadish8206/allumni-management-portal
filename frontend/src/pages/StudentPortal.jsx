@@ -435,6 +435,25 @@ const ResourceHub = ({ token }) => {
     }
   };
 
+  const handleDownload = (base64, title) => {
+    try {
+      const byteCharacters = atob(base64.split(',')[1]);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = title + '.pdf';
+      link.click();
+    } catch (e) {
+      window.open(base64);
+    }
+  };
+
   const typeColor = { note: '#4F46E5', announcement: '#F59E0B', update: '#10B981' };
 
   return (
@@ -453,7 +472,7 @@ const ResourceHub = ({ token }) => {
         <Modal title={previewFile.title} onClose={() => setPreviewFile(null)}>
           <iframe src={previewFile.url} title="Preview" style={{ width: '100%', height: '70vh', border: 'none', borderRadius: '0.5rem' }} />
           <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-            <a href={previewFile.url} download={previewFile.title} className="btn btn-primary">Download Copy</a>
+            <button onClick={() => handleDownload(previewFile.url, previewFile.title)} className="btn btn-primary">Download Copy</button>
           </div>
         </Modal>
       )}
@@ -471,9 +490,9 @@ const ResourceHub = ({ token }) => {
                 <button onClick={() => openPreview(r.fileUrl, r.title)} className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
                   👁️ Preview
                 </button>
-                <a href={r.fileUrl} download={r.title || 'file'} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--bg-color)', textDecoration: 'none' }}>
+                <button onClick={() => handleDownload(r.fileUrl, r.title)} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--bg-color)' }}>
                   💾 Download
-                </a>
+                </button>
               </div>
             )}
             <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>

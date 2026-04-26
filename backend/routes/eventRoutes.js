@@ -40,7 +40,7 @@ router.post('/', [auth, checkRole(['alumni', 'admin'])], async (req, res) => {
 
       // Send emails asynchronously via BCC so users don't see each other's addresses
       sendEmail({
-        email: process.env.EMAIL_USER, // Send to self
+        email: process.env.SMTP_USER, // Send to self
         bcc: emails,                   // BCC all students and admins
         subject: `New Announcement: ${title}`,
         message
