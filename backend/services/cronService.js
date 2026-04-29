@@ -13,42 +13,50 @@ const initCronJobs = () => {
 };
 
 const performTransition = async () => {
-  console.log('Running student-to-alumni role transition check...');
+  console.log('Running autonomous student-to-alumni transition check...');
   try {
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // 1-12
     
-    // Find students whose graduationYear is less than or equal to current year
+    // Switch if:
+    // 1. Graduation year is in the past
+    // 2. Graduation year is current year AND we are past the standard passout month (June = 6)
     const studentsToUpdate = await User.find({
       role: 'student',
-      graduationYear: { $lte: currentYear, $ne: null }
+      $or: [
+        { graduationYear: { $lt: currentYear, $ne: null } },
+        { graduationYear: currentYear, $ne: null } // We will filter the month in JS for precision
+      ]
     });
 
+    const standardPassoutMonth = 6; // June
+
     if (studentsToUpdate.length > 0) {
+      let count = 0;
       for (const student of studentsToUpdate) {
+        // Skip if it's the current year but we haven't reached June yet
+        if (student.graduationYear === currentYear && currentMonth < standardPassoutMonth) {
+          continue;
+        }
+
         student.role = 'alumni';
         await student.save();
+        count++;
         
         // Send congratulatory email
         await sendEmail(
           student.email,
           '🎓 Congratulations on your Graduation!',
           `<h1>Welcome to the Alumni Network, ${student.name}!</h1>
-           <p>Based on your graduation year (${student.graduationYear}), your account has been automatically upgraded to <strong>Alumni</strong> status.</p>
-           <p>You can now:</p>
-           <ul>
-             <li>Post job opportunities and referrals.</li>
-             <li>Offer mentorship to current students.</li>
-             <li>Sync your professional profile with LinkedIn.</li>
-           </ul>
-           <p>We are proud to have you as part of our alumni community!</p>`
+           <p>Your account has been automatically upgraded to <strong>Alumni</strong> status following your graduation year (${student.graduationYear}).</p>
+           <p>You now have full access to alumni-only features like job referrals and mentorship offering.</p>`
         );
       }
-      console.log(`Successfully transitioned ${studentsToUpdate.length} students to alumni.`);
-    } else {
-      console.log('No students found for transition.');
+      if (count > 0) console.log(`Successfully transitioned ${count} students to alumni.`);
     }
   } catch (err) {
-    console.error('Error in student-to-alumni role transition:', err);
+    console.error('Error in autonomous transition:', err);
   }
 };
 
