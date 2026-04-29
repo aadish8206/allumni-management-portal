@@ -19,15 +19,10 @@ const performTransition = async () => {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1; // 1-12
     
-    // Switch if:
-    // 1. Graduation year is in the past
-    // 2. Graduation year is current year AND we are past the standard passout month (June = 6)
+    // Find all students who have a graduation year set
     const studentsToUpdate = await User.find({
       role: 'student',
-      $or: [
-        { graduationYear: { $lt: currentYear, $ne: null } },
-        { graduationYear: currentYear, $ne: null } // We will filter the month in JS for precision
-      ]
+      graduationYear: { $exists: true, $ne: null, $lte: currentYear }
     });
 
     const standardPassoutMonth = 6; // June
