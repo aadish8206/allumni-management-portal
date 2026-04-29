@@ -269,10 +269,25 @@ const OpportunityBoard = ({ token }) => {
   const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState('all');
 
+  const [approvedMentors, setApprovedMentors] = useState([]);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [referralMsg, setReferralMsg] = useState('');
+  const [msgSent, setMsgSent] = useState(false);
+
   useEffect(() => {
     const params = filter !== 'all' ? { type: filter } : {};
     api(token).get('/jobs', { params }).then(r => setJobs(r.data)).catch(console.error);
+    api(token).get('/mentorship/me').then(r => setApprovedMentors(r.data.filter(m => m.status === 'approved').map(m => m.mentor?._id)));
   }, [token, filter]);
+
+  const sendReferralRequest = async () => {
+    await api(token).post('/messages', { 
+      receiverId: selectedJob.postedBy, 
+      content: referralMsg || `Hi ${selectedJob.postedByName}, I saw your post for ${selectedJob.title} at ${selectedJob.company} and would like to request a referral.` 
+    });
+    setMsgSent(true);
+    setTimeout(() => { setSelectedJob(null); setMsgSent(false); setReferralMsg(''); }, 1500);
+  };
 
   const typeColor = { internship: '#10B981', job: '#4F46E5', referral: '#F59E0B' };
   const typeBg = { internship: '#d1fae5', job: '#e0e7ff', referral: '#fef3c7' };
@@ -306,13 +321,47 @@ const OpportunityBoard = ({ token }) => {
                 {job.location && `📍 ${job.location} • `}Posted by {job.postedByName} • {new Date(job.createdAt).toLocaleDateString()}
               </p>
             </div>
-            {job.applyLink && (
-              <a href={job.applyLink} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', marginLeft: '1rem', flexShrink: 0 }}>
-                Apply →
-              </a>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+              {job.applyLink && (
+                <a href={job.applyLink} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', width: '100%', textAlign: 'center' }}>
+                  Apply →
+                </a>
+              )}
+              {approvedMentors.includes(job.postedBy) ? (
+                <button onClick={() => setSelectedJob(job)} className="btn" style={{ background: '#10B981', color: 'white', fontSize: '0.8rem', padding: '0.5rem 1rem', width: '100%' }}>
+                  <MessageSquare size={14} style={{ marginRight: 4 }} /> Referral Chat
+                </button>
+              ) : (
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', margin: 0, width: '120px' }}>
+                  Request approval in <strong>Mentorship</strong> tab to ask for referral
+                </p>
+              )}
+            </div>
           </div>
         ))}
+        {selectedJob && (
+          <Modal title={`Request Referral: ${selectedJob.title}`} onClose={() => setSelectedJob(null)}>
+            {msgSent ? (
+              <div style={{ textAlign: 'center', color: '#10B981', padding: '1rem' }}>
+                <CheckCircle size={48} color="#10B981" />
+                <p style={{ marginTop: '1rem', fontWeight: 600 }}>Referral request sent!</p>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                  You are messaging <strong>{selectedJob.postedByName}</strong> at <strong>{selectedJob.company}</strong>.
+                </p>
+                <div className="form-group">
+                  <label className="form-label">Message for {selectedJob.postedByName}</label>
+                  <textarea className="form-input" rows={4} value={referralMsg} onChange={e => setReferralMsg(e.target.value)} placeholder={`Hi, I'm interested in the ${selectedJob.title} position...`} />
+                </div>
+                <button className="btn btn-primary" style={{ width: '100%' }} onClick={sendReferralRequest}>
+                  <Send size={16} style={{ marginRight: 8 }} /> Send Request
+                </button>
+              </>
+            )}
+          </Modal>
+        )}
         {jobs.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No opportunities posted yet. Check back soon!</p>}
       </div>
     </div>
