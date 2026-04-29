@@ -7,7 +7,8 @@ const MentorshipSchema = new mongoose.Schema({
   menteeName: { type: String },
   domain: { type: String, required: true },
   description: { type: String },
-  status: { type: String, enum: ['available', 'occupied'], default: 'available' },
+  status: { type: String, enum: ['available', 'pending_approval', 'approved', 'rejected'], default: 'available' },
+  adminNote: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Mentorship', MentorshipSchema);

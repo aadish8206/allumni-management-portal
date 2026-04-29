@@ -32,6 +32,12 @@ const BatchTracking = ({ token }) => {
   const [msgContent, setMsgContent] = useState('');
   const [msgSent, setMsgSent] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [approvedMentors, setApprovedMentors] = useState([]);
+
+  const fetchMentorships = async () => {
+    const r = await api(token).get('/mentorship/me');
+    setApprovedMentors(r.data.filter(m => m.status === 'approved').map(m => m.mentor?._id));
+  };
 
   const fetchAlumni = async () => {
     const params = {};
@@ -41,7 +47,10 @@ const BatchTracking = ({ token }) => {
     setAlumni(r.data);
   };
 
-  useEffect(() => { fetchAlumni(); }, [filters.batch, filters.department, token]);
+  useEffect(() => { 
+    fetchAlumni(); 
+    fetchMentorships();
+  }, [filters.batch, filters.department, token]);
 
   const filtered = alumni.filter(a => {
     const matchName = a.name.toLowerCase().includes(search.toLowerCase());
@@ -104,9 +113,20 @@ const BatchTracking = ({ token }) => {
               {alum.batch && <span className="badge badge-alumni">Class of {alum.batch}</span>}
               {alum.department && <span className="badge badge-student">{alum.department}</span>}
             </div>
-            <button onClick={() => setSelected(alum)} className="btn" style={{ background: 'var(--primary)', color: 'white', padding: '0.5rem', fontSize: '0.875rem' }}>
-              <MessageSquare size={14} style={{ marginRight: '0.5rem' }} /> Contact for Guidance
-            </button>
+            {approvedMentors.includes(alum._id) ? (
+              <button onClick={() => setSelected(alum)} className="btn" style={{ background: '#10B981', color: 'white', padding: '0.5rem', fontSize: '0.875rem' }}>
+                <MessageSquare size={14} style={{ marginRight: '0.5rem' }} /> Send Message
+              </button>
+            ) : (
+              <button disabled className="btn" style={{ background: 'var(--bg-color)', color: 'var(--text-muted)', padding: '0.5rem', fontSize: '0.875rem', cursor: 'not-allowed' }}>
+                <X size={14} style={{ marginRight: '0.5rem' }} /> Approval Required to Contact
+              </button>
+            )}
+            {!approvedMentors.includes(alum._id) && (
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', margin: 0 }}>
+                Request mentorship in the <strong>Mentorship Access</strong> tab to connect.
+              </p>
+            )}
           </div>
         ))}
         {filtered.length === 0 && (
@@ -155,7 +175,9 @@ const MentorshipAccess = ({ token }) => {
   const request = async (id) => {
     await api(token).put(`/mentorship/${id}/request`);
     setRequested(r => ({ ...r, [id]: true }));
-    setMentors(m => m.filter(x => x._id !== id));
+    // Refresh mentorships to show pending status
+    const r = await api(token).get('/mentorship/me');
+    setMyMentorships(r.data);
   };
 
   const calculateMatch = (mentorSkills) => {
@@ -173,19 +195,22 @@ const MentorshipAccess = ({ token }) => {
           <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>My Active Mentorships</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             {myMentorships.map(m => (
-              <div key={m._id} className="card" style={{ border: '2px solid var(--primary)' }}>
+              <div key={m._id} className="card" style={{ border: m.status === 'approved' ? '2px solid var(--primary)' : '2px solid #F59E0B' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 700 }}>
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: m.status === 'approved' ? 'var(--primary)' : '#F59E0B', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 700 }}>
                     {m.mentor?.name?.charAt(0).toUpperCase()}
                   </div>
                   <div style={{ flex: 1 }}>
                     <h4 style={{ margin: 0 }}>{m.mentor?.name}</h4>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{m.mentor?.email}</p>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{m.status === 'approved' ? m.mentor?.email : 'Contact hidden until approved'}</p>
                   </div>
                 </div>
-                <div style={{ background: '#f0f4ff', padding: '0.75rem', borderRadius: '0.5rem' }}>
-                  <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--primary)' }}>Domain: {m.domain}</p>
-                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Status: Active Connection</p>
+                <div style={{ background: m.status === 'approved' ? '#f0f4ff' : '#fff7ed', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                  <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: m.status === 'approved' ? 'var(--primary)' : '#D97706' }}>Domain: {m.domain}</p>
+                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Status: <span style={{ fontWeight: 700 }}>{m.status.replace('_', ' ').toUpperCase()}</span>
+                  </p>
+                  {m.adminNote && <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#EF4444' }}><strong>Admin Note:</strong> {m.adminNote}</p>}
                 </div>
               </div>
             ))}
@@ -225,11 +250,11 @@ const MentorshipAccess = ({ token }) => {
             {m.description && <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>{m.description}</p>}
             <button
               onClick={() => request(m._id)}
-              disabled={requested[m._id]}
+              disabled={requested[m._id] || myMentorships.some(x => x.domain === m.domain && x.mentor?._id === m.mentor?._id)}
               className="btn btn-primary"
-              style={{ width: '100%', background: requested[m._id] ? '#10B981' : 'var(--primary)' }}
+              style={{ width: '100%', background: (requested[m._id] || myMentorships.some(x => x.domain === m.domain && x.mentor?._id === m.mentor?._id)) ? '#10B981' : 'var(--primary)' }}
             >
-              {requested[m._id] ? '✓ Request Sent' : 'Request Mentorship'}
+              {(requested[m._id] || myMentorships.some(x => x.domain === m.domain && x.mentor?._id === m.mentor?._id)) ? '✓ Request Sent' : 'Request Mentorship'}
             </button>
           </div>
         )})}

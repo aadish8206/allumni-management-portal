@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
   Shield, Users, Database, BarChart2, IndianRupee, Megaphone,
-  LogOut, CheckCircle, Trash2, Bell, BookOpen, TrendingUp, X, Home, Send
+  LogOut, CheckCircle, Trash2, Bell, BookOpen, TrendingUp, X, Home, Send, Star
 } from 'lucide-react';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
@@ -511,6 +511,79 @@ const StudentResumes = ({ token }) => {
   );
 };
 
+// ─── Mentorship Approvals Tab ──────────────────────────────────────────────────
+const MentorshipApprovals = ({ token }) => {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [token]);
+
+  const fetchRequests = async () => {
+    try {
+      const r = await api(token).get('/mentorship/admin/requests');
+      setRequests(r.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const approve = async (id) => {
+    await api(token).put(`/mentorship/admin/approve/${id}`);
+    setRequests(requests.filter(r => r._id !== id));
+  };
+
+  const reject = async (id) => {
+    const note = prompt('Enter rejection reason:');
+    if (note === null) return;
+    await api(token).put(`/mentorship/admin/reject/${id}`, { adminNote: note });
+    setRequests(requests.filter(r => r._id !== id));
+  };
+
+  return (
+    <div className="card">
+      <h3 style={{ marginBottom: '1.5rem' }}>Pending Mentorship Requests</h3>
+      {loading ? <p>Loading...</p> : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+              <th style={{ padding: '1rem', textAlign: 'left' }}>Student (Mentee)</th>
+              <th style={{ padding: '1rem', textAlign: 'left' }}>Alumni (Mentor)</th>
+              <th style={{ padding: '1rem', textAlign: 'left' }}>Domain</th>
+              <th style={{ padding: '1rem', textAlign: 'center' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map(r => (
+              <tr key={r._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <td style={{ padding: '1rem' }}>
+                  <p style={{ fontWeight: 600, margin: 0 }}>{r.menteeName}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>{r.mentee?.department} ({r.mentee?.batch})</p>
+                </td>
+                <td style={{ padding: '1rem' }}>
+                  <p style={{ fontWeight: 600, margin: 0 }}>{r.mentorName}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>{r.mentor?.department}</p>
+                </td>
+                <td style={{ padding: '1rem' }}>
+                  <span className="badge badge-alumni">{r.domain}</span>
+                </td>
+                <td style={{ padding: '1rem', textAlign: 'center' }}>
+                  <button onClick={() => approve(r._id)} className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', marginRight: '0.5rem', background: '#10B981' }}>Approve</button>
+                  <button onClick={() => reject(r._id)} className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: '#fee2e2', color: '#EF4444' }}>Reject</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {!loading && requests.length === 0 && <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No pending requests found.</p>}
+    </div>
+  );
+};
+
 // ─── Main Admin Portal ────────────────────────────────────────────────────────
 const AdminPortal = () => {
   const { user, logout } = useContext(AuthContext);
@@ -524,6 +597,7 @@ const AdminPortal = () => {
   const navItems = [
     { id: 'users', icon: Users, label: 'User Management' },
     { id: 'resumes', icon: BookOpen, label: 'Student Resumes' },
+    { id: 'mentorship', icon: Star, label: 'Mentorship Approvals' },
     { id: 'fundraising', icon: IndianRupee, label: 'Fundraising Tools' },
     { id: 'resources', icon: Database, label: 'Resources & Accreditation' },
   ];
@@ -561,7 +635,7 @@ const AdminPortal = () => {
         <div className="header">
           <div>
             <h1 className="page-title">
-              {tab === 'users' ? 'User Management' : tab === 'resumes' ? 'Student Resumes' : tab === 'fundraising' ? 'Fundraising & Donations' : 'Resources & Accreditation'}
+              {tab === 'users' ? 'User Management' : tab === 'resumes' ? 'Student Resumes' : tab === 'mentorship' ? 'Mentorship Approvals' : tab === 'fundraising' ? 'Fundraising & Donations' : 'Resources & Accreditation'}
             </h1>
             <p style={{ color: 'var(--text-muted)' }}>Institute Level — Full Control</p>
           </div>
@@ -571,6 +645,7 @@ const AdminPortal = () => {
         <div className="animate-slide-up delay-100">
           {tab === 'users' && <UserManagement token={user.token} stats={stats} />}
           {tab === 'resumes' && <StudentResumes token={user.token} />}
+          {tab === 'mentorship' && <MentorshipApprovals token={user.token} />}
           {tab === 'fundraising' && <FundraisingTab token={user.token} />}
           {tab === 'resources' && <ResourcesTab token={user.token} userName={user.name} />}
         </div>

@@ -9,8 +9,28 @@ const router = express.Router();
 router.post('/', auth, async (req, res) => {
   try {
     const { receiverId, content, attachedResumeId } = req.body;
-    const sender = await User.findById(req.user.id).select('name');
-    const receiver = await User.findById(receiverId).select('name email');
+    const sender = await User.findById(req.user.id).select('name role');
+    const receiver = await User.findById(receiverId).select('name email role');
+    
+    if (!receiver) return res.status(404).json({ msg: 'Receiver not found' });
+
+    // Restriction: Student <-> Alumni messaging only if approved mentorship exists
+    if ((sender.role === 'student' && receiver.role === 'alumni') || 
+        (sender.role === 'alumni' && receiver.role === 'student')) {
+      
+      const Mentorship = require('../models/Mentorship');
+      const mentorship = await Mentorship.findOne({
+        $or: [
+          { mentor: sender._id, mentee: receiver._id },
+          { mentor: receiver._id, mentee: sender._id }
+        ],
+        status: 'approved'
+      });
+
+      if (!mentorship && sender.role !== 'admin') {
+        return res.status(403).json({ msg: 'Contact not allowed. Mentorship must be approved by admin first.' });
+      }
+    }
     
     const message = new Message({
       sender: req.user.id,

@@ -1,16 +1,18 @@
 const nodemailer = require('nodemailer');
 
-// Configure this in .env
-// For Gmail, we use 'service: gmail' for better reliability
+// Configure this in .env or Render dashboard
+const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
+    user: smtpUser,
+    pass: smtpPass
   }
 });
 
-console.log(`[EMAIL SERVICE] Initialized for: ${process.env.SMTP_USER}`);
+console.log(`[EMAIL SERVICE] Initialized for: ${smtpUser}`);
 
 /**
  * Send an email
@@ -30,7 +32,7 @@ const sendEmail = async (to, subject, html, bcc = null) => {
     };
 
     // Send real email if credentials are provided
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    if (smtpUser && smtpPass) {
       const info = await transporter.sendMail(mailOptions);
       console.log('Email sent: ' + info.messageId);
       return true;

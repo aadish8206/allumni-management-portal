@@ -37,7 +37,12 @@ app.use('/api/campaigns', campaignRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/alumni_portal')
-  .then(() => console.log('MongoDB Connected successfully'))
+  .then(() => {
+    console.log('MongoDB Connected successfully');
+    // Initialize Cron Jobs
+    const initCronJobs = require('./services/cronService');
+    initCronJobs();
+  })
   .catch((err) => console.log('MongoDB connection error:', err.message));
 
 // Basic route

@@ -43,9 +43,17 @@ const DirectContact = ({ token }) => {
   }, [token]);
 
   const sendMessage = async () => {
-    await api(token).post('/messages', composeData);
-    setSuccess(true);
-    setTimeout(() => { setShowCompose(false); setSuccess(false); setComposeData({ receiverId: '', content: '' }); }, 1500);
+    try {
+      await api(token).post('/messages', composeData);
+      setSuccess(true);
+      setTimeout(() => { setShowCompose(false); setSuccess(false); setComposeData({ receiverId: '', content: '' }); }, 1500);
+    } catch (err) {
+      if (err.response?.status === 403) {
+        alert('Permission Denied: Mentorship must be approved by admin before contacting students.');
+      } else {
+        alert('Failed to send message.');
+      }
+    }
   };
 
   const MessageItem = ({ msg, isSent }) => {
@@ -247,7 +255,24 @@ const ProfessionalProfile = ({ token }) => {
           </div>
           <div className="form-group">
             <label className="form-label">LinkedIn URL</label>
-            <input type="url" className="form-input" value={form.linkedin || ''} onChange={e => setForm({ ...form, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." />
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input type="url" className="form-input" style={{ flex: 1 }} value={form.linkedin || ''} onChange={e => setForm({ ...form, linkedin: e.target.value })} placeholder="https://linkedin.com/in/..." />
+              <button 
+                type="button" 
+                className="btn" 
+                style={{ background: '#0077b5', color: 'white' }}
+                onClick={() => {
+                  if (!form.linkedin) return alert('Please enter your LinkedIn URL first.');
+                  window.open(form.linkedin, '_blank');
+                  const role = prompt('Enter your current Job Title (e.g. Senior Developer):');
+                  const company = prompt('Enter your current Company (e.g. Google):');
+                  if (role) setForm(prev => ({ ...prev, jobTitle: role }));
+                  if (company) setForm(prev => ({ ...prev, company: company }));
+                }}
+              >
+                Sync (Manual)
+              </button>
+            </div>
           </div>
           <div className="form-group">
             <label className="form-label">Skills (comma separated)</label>
