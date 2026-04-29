@@ -1,108 +1,151 @@
-# 🎓 Alumni Connect: Complete Management System
+# 🎓 Alumni Connect: Advanced Management Portal
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/aadish8206/allumni-management-portal)
-[![Framework: React](https://img.shields.io/badge/Framework-React-blue)](https://reactjs.org/)
-[![Backend: Node.js](https://img.shields.io/badge/Backend-Node.js-green)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb)](https://www.mongodb.com/)
 
-**Alumni Connect** is a professional MERN-stack platform designed to bridge the gap between current students and alumni. It features automated role transitions, secure admin-mediated networking, and a live referral job board.
+**Alumni Connect** is a sophisticated networking ecosystem designed for higher education institutions. It automates administrative tasks while providing a secure, moderated platform for professional growth.
+
+---
+
+## 📖 Table of Contents
+- [Core Features](#-core-features)
+- [Workflow Visualizations](#-workflow-visualizations)
+- [System Architecture](#-system-architecture)
+- [API Reference](#-api-reference)
+- [Installation & Setup](#-installation--setup)
+- [Environment Variables](#-environment-variables)
+- [Troubleshooting](#-troubleshooting)
 
 ---
 
 ## 🚀 Core Features
 
-### 1. Automated Lifecycle Management
-- **Smart Role Transition**: A daily background service (`node-cron`) automatically promotes students to the "Alumni" role upon reaching their graduation year.
-- **LinkedIn Manual Sync**: A built-in tool for alumni to quickly update their professional experience (Job Title, Company) without expensive API fees.
+### 👨‍🎓 Automated Student-to-Alumni Transition
+- **Background Logic**: A daily `node-cron` job checks graduation years.
+- **Auto-Promotion**: Students are instantly switched to "Alumni" role upon graduation, unlocking the job posting and LinkedIn sync features.
 
-### 2. Admin Oversight & Security
-- **Approval-Gate Networking**: Direct student-to-alumni messaging is blocked by default. Admins must approve mentorship/contact requests to unlock communication.
-- **Verification System**: Full control over alumni account verification and resume management.
-- **Analytical Dashboard**: Real-time stats on user distribution, donations, and campaign progress.
+### 🛡️ Admin-Gate Networking (Security First)
+- **Moderated Communication**: Direct messaging between students and alumni is disabled until an Admin approves a specific connection request.
+- **Mentorship Oversight**: Admins can view mentee profiles and reject/approve connections based on institutional guidelines.
 
-### 3. Student & Career Tools
-- **Advanced Alumni Directory**: Search and filter by skills, company, batch, or department.
-- **Interactive Job Board**: View internships, jobs, and referrals posted by alumni.
-- **Direct Referral Requests**: Request referrals directly from alumni posters through the approved messaging system.
-- **Resource Hub**: Access campus resources, study materials, and official announcements in PDF format.
+### 💼 Referral-Linked Job Board
+- **Actionable Referrals**: Students can view job posts and click "Request Referral" to initiate a moderated connection with the alumni poster.
+- **Job Types**: Support for Internships, Full-time Jobs, and Referral-only listings.
 
-### 4. Alumni & Institution Engagement
-- **Opportunity Posting**: Alumni can post jobs and mentor slots to give back to the campus.
-- **Fundraising & Donations**: Integrated donation system for campus development projects.
+### 🔄 Free LinkedIn Profile Sync
+- **Manual Sync Helper**: A cost-free synchronization tool for alumni to update their current professional status (Company, Title, Skills) directly in the portal.
 
 ---
 
-## 🛠️ Technology Stack
+## 📊 Workflow Visualizations
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend** | React 18, Vite, Lucide Icons, Recharts |
-| **Backend** | Node.js, Express.js, Node-cron |
-| **Database** | MongoDB Atlas (Mongoose) |
-| **Auth** | JWT (JSON Web Tokens) & BcryptJS |
-| **Email** | Nodemailer (Gmail SMTP) |
+### Mentorship Approval Flow
+```mermaid
+sequenceDiagram
+    participant S as Student
+    participant AD as Admin
+    participant A as Alumni
+    S->>A: Request Mentorship
+    Note right of S: Messaging is DISABLED
+    AD->>AD: Review Request
+    alt Approved
+        AD->>S: Notify Approval
+        S->>A: Messaging ENABLED
+    else Rejected
+        AD->>S: Notify Rejection (with reason)
+    end
+```
+
+### Auto-Transition Flow
+```mermaid
+graph LR
+    A[Cron Job Starts] --> B{Graduation Year reached?}
+    B -- Yes --> C[Update Role to Alumni]
+    B -- No --> D[Keep as Student]
+    C --> E[Unlock Alumni Features]
+```
 
 ---
 
-## 📂 Project Structure
+## 📂 System Architecture
 
 ```text
 ├── backend/
-│   ├── models/          # Database Schemas
-│   ├── routes/          # API Endpoints
-│   ├── services/        # Logic (Email, Cron Automation)
-│   └── server.js        # Entry point
+│   ├── models/          # User, Job, Mentorship, Resource, Donation, Campaign
+│   ├── routes/          # authRoutes, userRoutes, jobRoutes, mentorshipRoutes, etc.
+│   ├── services/        # cronService.js (Automation), emailService.js (Notifications)
+│   └── server.js        # Entry point & DB connection
 └── frontend/
     ├── src/
-    │   ├── context/     # Global State & Auth
-    │   ├── pages/       # Portals (Admin, Student, Alumni)
-    │   └── App.jsx      # Main Logic & Routing
+    │   ├── context/     # AuthContext (JWT Handling)
+    │   ├── pages/       # AdminPortal, StudentPortal, AlumniPortal, Login, Register
+    │   └── index.css    # Premium Design Tokens & Theme
 ```
+
+---
+
+## 📡 API Reference (Partial)
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/auth/register` | Register a new user | No |
+| **POST** | `/api/auth/login` | Login and receive JWT | No |
+| **GET** | `/api/users/directory` | Fetch alumni with filters | Yes |
+| **PUT** | `/api/mentorship/:id/request` | Student requests mentorship | Yes (Student) |
+| **PUT** | `/api/mentorship/admin/approve/:id` | Admin approves request | Yes (Admin) |
+| **POST** | `/api/jobs` | Alumni posts a new job | Yes (Alumni) |
 
 ---
 
 ## 🚦 Installation & Setup
 
-### Prerequisites
-- Node.js & npm
-- MongoDB Atlas Account
+### 1. Clone & Dependencies
+```bash
+git clone https://github.com/aadish8206/allumni-management-portal.git
+cd allumni-management-portal
+# Install for both
+cd backend && npm install
+cd ../frontend && npm install
+```
 
-### 1. Backend Setup
-1. Navigate to the backend folder: `cd backend`
-2. Install dependencies: `npm install`
-3. Create a `.env` file:
-   ```env
-   PORT=5000
-   MONGODB_URI=your_mongodb_atlas_uri
-   JWT_SECRET=your_jwt_secret
-   SMTP_USER=your_gmail@gmail.com
-   SMTP_PASS=your_google_app_password
-   # Render compatibility
-   EMAIL_USER=your_gmail@gmail.com
-   EMAIL_PASS=your_google_app_password
-   ```
-4. Start the server: `npm run dev`
+### 2. Configure .env
+Create `.env` in the `backend/` folder:
+```env
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your_jwt_secret
+SMTP_USER=your_gmail@gmail.com
+SMTP_PASS=your_app_password
+```
 
-### 2. Frontend Setup
-1. Navigate to the frontend folder: `cd frontend`
-2. Install dependencies: `npm install`
-3. Create a `.env` file:
-   ```env
-   VITE_API_URL=http://localhost:5000
-   ```
-4. Start the application: `npm run dev`
+### 3. Run Locally
+```bash
+# Backend
+npm run dev
+# Frontend
+npm run dev
+```
 
 ---
 
-## 🌐 Deployment
-This project is optimized for **Render**. 
-- **Backend**: Connect the `backend/` folder and set the environment variables in the Render dashboard.
-- **Frontend**: Connect the `frontend/` folder and set `VITE_API_URL` to your live backend URL.
+## 🔐 Environment Variables
+
+| Variable | Description |
+| :--- | :--- |
+| `MONGODB_URI` | Your MongoDB Atlas connection string. |
+| `JWT_SECRET` | Secret key for signing login tokens. |
+| `SMTP_PASS` | 16-character Google App Password for emails. |
+| `EMAIL_PASS` | (Render Only) Alternative for SMTP_PASS. |
 
 ---
 
-## 🤝 Support
-For any issues or feature requests, please open an issue on the GitHub repository.
+## 🛠️ Troubleshooting
+
+- **CORS Errors**: Ensure the `VITE_API_URL` in frontend `.env` matches your backend URL.
+- **Email 535 Error**: Ensure you are using a **Google App Password**, not your regular Gmail password.
+- **MongoDB Connection**: Whitelist `0.0.0.0/0` in MongoDB Atlas Network Access if deploying to Render.
 
 ---
 
-**Developed with focus on Security, Automation, and Career Growth.**
+**Developed for Institutions committed to lifelong Alumni Engagement.**
