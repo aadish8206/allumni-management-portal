@@ -1,43 +1,33 @@
-# 🎓 Alumni Connect: Advanced Management Portal
+# 🎓 Alumni Connect: Complete Management System
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/aadish8206/allumni-management-portal)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Framework: React](https://img.shields.io/badge/Framework-React-blue)](https://reactjs.org/)
 [![Backend: Node.js](https://img.shields.io/badge/Backend-Node.js-green)](https://nodejs.org/)
 
-**Alumni Connect** is a professional networking and mentorship platform designed for educational institutions. It facilitates seamless interaction between current students and alumni while providing administrators with full oversight of the ecosystem.
+**Alumni Connect** is a professional MERN-stack platform designed to bridge the gap between current students and alumni. It features automated role transitions, secure admin-mediated networking, and a live referral job board.
 
 ---
 
-## 🌟 Vision & Purpose
-Most alumni portals are static directories. **Alumni Connect** transforms the portal into a dynamic ecosystem where:
-- **Automation** handles administrative drudgery (role transitions).
-- **Admin Oversight** ensures student safety and high-quality mentorship.
-- **Actionable Opportunities** allow students to turn job posts into real referrals.
+## 🚀 Core Features
 
----
+### 1. Automated Lifecycle Management
+- **Smart Role Transition**: A daily background service (`node-cron`) automatically promotes students to the "Alumni" role upon reaching their graduation year.
+- **LinkedIn Manual Sync**: A built-in tool for alumni to quickly update their professional experience (Job Title, Company) without expensive API fees.
 
-## 🚀 Key Modules & Features
+### 2. Admin Oversight & Security
+- **Approval-Gate Networking**: Direct student-to-alumni messaging is blocked by default. Admins must approve mentorship/contact requests to unlock communication.
+- **Verification System**: Full control over alumni account verification and resume management.
+- **Analytical Dashboard**: Real-time stats on user distribution, donations, and campaign progress.
 
-### 🏛️ 1. Administrative Control Center
-- **User Management**: Verify alumni profiles and manage student resumes.
-- **Mentorship Approval Queue**: Every student-alumni connection request must be approved by an admin before messaging is enabled.
-- **Fundraising & Campaigns**: Launch donation drives for campus projects with real-time progress tracking.
-- **Institutional Resources**: Post campus updates, study notes, and official announcements.
+### 3. Student & Career Tools
+- **Advanced Alumni Directory**: Search and filter by skills, company, batch, or department.
+- **Interactive Job Board**: View internships, jobs, and referrals posted by alumni.
+- **Direct Referral Requests**: Request referrals directly from alumni posters through the approved messaging system.
+- **Resource Hub**: Access campus resources, study materials, and official announcements in PDF format.
 
-### 🎓 2. Student Career Portal
-- **Alumni Directory**: Filter alumni by batch, skills, location, or current company.
-- **Smart Mentorship Matching**: AI-style skill matching that shows you the best mentors for your specific goals.
-- **Real-Time Referrals**: "Request Referral" buttons on the job board that connect you directly to the alumni poster.
-- **Resource Hub**: Download PDFs of study materials and campus updates.
-
-### 💼 3. Alumni Engagement Portal
-- **LinkedIn Manual Sync**: Update your profile professional stats in one click without expensive API costs.
-- **Giving Back**: Post job openings, internships, and offer mentorship slots.
-- **Event Manager**: Organize batch reunions or seminar workshops.
-
-### 🤖 4. Background Automation
-- **Auto-Transition Engine**: A `node-cron` service that runs daily to promote graduating students to Alumni status based on their graduation year.
+### 4. Alumni & Institution Engagement
+- **Opportunity Posting**: Alumni can post jobs and mentor slots to give back to the campus.
+- **Fundraising & Donations**: Integrated donation system for campus development projects.
 
 ---
 
@@ -45,12 +35,11 @@ Most alumni portals are static directories. **Alumni Connect** transforms the po
 
 | Layer | Technology |
 | :--- | :--- |
-| **Frontend** | React 18, Vite, Tailwind-style Custom CSS |
-| **Backend** | Node.js, Express.js |
-| **Database** | MongoDB Atlas (Mongoose ODM) |
-| **Authentication** | JSON Web Tokens (JWT) & BcryptJS |
-| **Icons & UI** | Lucide-React, Recharts (Analytics) |
-| **Deployment** | Render (Backend), Vercel/Netlify (Frontend) |
+| **Frontend** | React 18, Vite, Lucide Icons, Recharts |
+| **Backend** | Node.js, Express.js, Node-cron |
+| **Database** | MongoDB Atlas (Mongoose) |
+| **Auth** | JWT (JSON Web Tokens) & BcryptJS |
+| **Email** | Nodemailer (Gmail SMTP) |
 
 ---
 
@@ -58,81 +47,62 @@ Most alumni portals are static directories. **Alumni Connect** transforms the po
 
 ```text
 ├── backend/
-│   ├── models/          # Mongoose Schemas (User, Job, Mentorship, etc.)
-│   ├── routes/          # Express API Endpoints
-│   ├── services/        # Logic for Cron Jobs & Email
-│   ├── utils/           # Helper functions
+│   ├── models/          # Database Schemas
+│   ├── routes/          # API Endpoints
+│   ├── services/        # Logic (Email, Cron Automation)
 │   └── server.js        # Entry point
-├── frontend/
-│   ├── src/
-│   │   ├── components/  # Reusable UI elements
-│   │   ├── context/     # Auth & Global State
-│   │   ├── pages/       # Major Portals (Admin, Student, Alumni)
-│   │   └── App.jsx      # Routing Logic
+└── frontend/
+    ├── src/
+    │   ├── context/     # Global State & Auth
+    │   ├── pages/       # Portals (Admin, Student, Alumni)
+    │   └── App.jsx      # Main Logic & Routing
 ```
 
 ---
 
-## 🚦 Quick Start Guide
+## 🚦 Installation & Setup
 
 ### Prerequisites
-- Node.js installed
-- MongoDB Atlas account
+- Node.js & npm
+- MongoDB Atlas Account
 
 ### 1. Backend Setup
-```bash
-cd backend
-npm install
-```
-Create a `.env` file:
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_uri
-JWT_SECRET=your_secret_key
-SMTP_USER=your_gmail_address
-SMTP_PASS=your_google_app_password
-```
-Run the server:
-```bash
-npm run dev
-```
+1. Navigate to the backend folder: `cd backend`
+2. Install dependencies: `npm install`
+3. Create a `.env` file:
+   ```env
+   PORT=5000
+   MONGODB_URI=your_mongodb_atlas_uri
+   JWT_SECRET=your_jwt_secret
+   SMTP_USER=your_gmail@gmail.com
+   SMTP_PASS=your_google_app_password
+   # Render compatibility
+   EMAIL_USER=your_gmail@gmail.com
+   EMAIL_PASS=your_google_app_password
+   ```
+4. Start the server: `npm run dev`
 
 ### 2. Frontend Setup
-```bash
-cd frontend
-npm install
-```
-Create a `.env` file:
-```env
-VITE_API_URL=http://localhost:5000
-```
-Run the client:
-```bash
-npm run dev
-```
+1. Navigate to the frontend folder: `cd frontend`
+2. Install dependencies: `npm install`
+3. Create a `.env` file:
+   ```env
+   VITE_API_URL=http://localhost:5000
+   ```
+4. Start the application: `npm run dev`
 
 ---
 
-## 🔒 Security Features
-- **Strict Messaging Policy**: Student-Alumni messaging is 403-Forbidden unless an `APPROVED` mentorship status exists in the database.
-- **Admin Verification**: Alumni accounts can be locked behind an admin verification toggle.
-- **Secure File Storage**: Resumes and documents are stored as Base64 strings (or optionally connected to S3/Cloudinary).
+## 🌐 Deployment
+This project is optimized for **Render**. 
+- **Backend**: Connect the `backend/` folder and set the environment variables in the Render dashboard.
+- **Frontend**: Connect the `frontend/` folder and set `VITE_API_URL` to your live backend URL.
 
 ---
 
-## 🤝 Contributing
-Contributions are welcome! Please follow these steps:
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## 🤝 Support
+For any issues or feature requests, please open an issue on the GitHub repository.
 
 ---
 
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-**Developed with ❤️ for the Global Alumni Community.**
+**Developed with focus on Security, Automation, and Career Growth.**
