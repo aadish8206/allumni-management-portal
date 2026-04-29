@@ -609,8 +609,42 @@ const ResourceHub = ({ token }) => {
 
 // ─── Main Student Portal ───────────────────────────────────────────────────────
 const StudentPortal = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, refreshUser } = useContext(AuthContext);
   const [tab, setTab] = useState('batch');
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    const checkRole = async () => {
+      const updated = await refreshUser();
+      if (updated && updated.role === 'alumni') {
+        setShowWelcome(true);
+      }
+    };
+    checkRole();
+  }, []);
+
+  if (showWelcome) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, color: 'white', textAlign: 'center', padding: '2rem' }}>
+        <div className="animate-slide-up">
+          <GraduationCap size={80} style={{ marginBottom: '2rem' }} />
+          <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Congratulations!</h1>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '2rem', opacity: 0.9 }}>You have officially transitioned to Alumni status.</h2>
+          <p style={{ maxWidth: '600px', margin: '0 auto 3rem', fontSize: '1.1rem', lineHeight: 1.6 }}>
+            Welcome to the Alumni Association. You now have access to post jobs, offer mentorship, 
+            and sync your professional profile with LinkedIn.
+          </p>
+          <button 
+            className="btn" 
+            style={{ background: 'white', color: 'var(--primary)', padding: '1rem 3rem', fontSize: '1.2rem', fontWeight: 700, borderRadius: '9999px' }}
+            onClick={() => window.location.href = '/alumni-portal'}
+          >
+            Enter Alumni Portal
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const navItems = [
     { id: 'profile', icon: Users, label: 'My Profile & Resume' },
