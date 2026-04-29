@@ -13,6 +13,7 @@
 - [Core Features](#-core-features)
 - [Workflow Visualizations](#-workflow-visualizations)
 - [System Architecture](#-system-architecture)
+- [Tech Stack & Dependencies](#-tech-stack--dependencies)
 - [API Reference](#-api-reference)
 - [Installation & Setup](#-installation--setup)
 - [Environment Variables](#-environment-variables)
@@ -83,6 +84,34 @@ graph LR
     │   ├── pages/       # AdminPortal, StudentPortal, AlumniPortal, Login, Register
     │   └── index.css    # Premium Design Tokens & Theme
 ```
+
+---
+
+## 🛠️ Tech Stack & Dependencies
+
+The project leverages a modern tech stack for scalability and performance.
+
+### 🌐 Backend (Node.js & Express)
+| Dependency | Purpose |
+| :--- | :--- |
+| **express** | Core web framework for the API. |
+| **mongoose** | MongoDB object modeling. |
+| **bcryptjs** | Password hashing & security. |
+| **jsonwebtoken** | JWT-based authentication. |
+| **nodemailer** | Email automation & notifications. |
+| **node-cron** | Scheduled background tasks (Auto-role transition). |
+| **dotenv** | Environment variable management. |
+| **cors** | Cross-Origin Resource Sharing. |
+
+### 🎨 Frontend (React & Vite)
+| Dependency | Purpose |
+| :--- | :--- |
+| **react** | UI library for building components. |
+| **react-router-dom** | Client-side routing and navigation. |
+| **axios** | HTTP requests to the backend API. |
+| **recharts** | Interactive data visualizations & charts. |
+| **lucide-react** | Modern and clean iconography. |
+| **vite** | Fast build tool and development server. |
 
 ---
 
