@@ -11,9 +11,10 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
     const name = localStorage.getItem('name');
+    const id = localStorage.getItem('userId');
     if (token && role) {
       // In a real app we would verify token with backend
-      setUser({ token, role, name });
+      setUser({ token, role, name, _id: id });
     }
     setLoading(false);
   }, []);
@@ -24,7 +25,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('role', res.data.user.role);
       localStorage.setItem('name', res.data.user.name);
-      setUser({ token: res.data.token, role: res.data.user.role, name: res.data.user.name });
+      localStorage.setItem('userId', res.data.user.id);
+      setUser({ token: res.data.token, role: res.data.user.role, name: res.data.user.name, _id: res.data.user.id });
       return { success: true, role: res.data.user.role };
     } catch (error) {
       return { success: false, msg: error.response?.data?.msg || 'Login failed' };
@@ -37,7 +39,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('role', res.data.user.role);
       localStorage.setItem('name', res.data.user.name);
-      setUser({ token: res.data.token, role: res.data.user.role, name: res.data.user.name });
+      localStorage.setItem('userId', res.data.user.id);
+      setUser({ token: res.data.token, role: res.data.user.role, name: res.data.user.name, _id: res.data.user.id });
       return { success: true, role: res.data.user.role };
     } catch (error) {
       return { success: false, msg: error.response?.data?.msg || 'Registration failed' };
@@ -51,9 +54,10 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, {
         headers: { 'x-auth-token': token }
       });
-      const updatedUser = { token, role: res.data.role, name: res.data.name };
+      const updatedUser = { token, role: res.data.role, name: res.data.name, _id: res.data._id };
       localStorage.setItem('role', res.data.role);
       localStorage.setItem('name', res.data.name);
+      localStorage.setItem('userId', res.data._id);
       setUser(updatedUser);
       return updatedUser;
     } catch (error) {
@@ -65,6 +69,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('name');
+    localStorage.removeItem('userId');
     setUser(null);
   };
 
