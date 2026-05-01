@@ -34,7 +34,7 @@ router.post('/', [auth, checkRole(['admin'])], async (req, res) => {
 // ADMIN: Update campaign status or details
 router.put('/:id', [auth, checkRole(['admin'])], async (req, res) => {
   try {
-    const campaign = await Campaign.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+    const campaign = await Campaign.findByIdAndUpdate(req.params.id, { $set: req.body }, { returnDocument: 'after' });
     res.json(campaign);
   } catch (err) {
     res.status(500).send('Server Error');

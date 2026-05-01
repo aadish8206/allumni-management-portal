@@ -57,7 +57,7 @@ router.put('/:id/request', [auth, checkRole(['student'])], async (req, res) => {
     const mentorship = await Mentorship.findByIdAndUpdate(
       req.params.id,
       { mentee: req.user.id, menteeName: mentee.name, status: 'pending_approval' },
-      { new: true }
+      { returnDocument: 'after' }
     ).populate('mentor', 'name email');
     
     // Notification for Admin (optional: could also send email to admin)
@@ -86,7 +86,7 @@ router.put('/admin/approve/:id', [auth, checkRole(['admin'])], async (req, res) 
     const mentorship = await Mentorship.findByIdAndUpdate(
       req.params.id,
       { status: 'approved' },
-      { new: true }
+      { returnDocument: 'after' }
     ).populate('mentor', 'name email').populate('mentee', 'name email');
 
     // Notify mentor and mentee
@@ -111,7 +111,7 @@ router.put('/admin/reject/:id', [auth, checkRole(['admin'])], async (req, res) =
     const mentorship = await Mentorship.findByIdAndUpdate(
       req.params.id,
       { status: 'available', mentee: null, menteeName: null, adminNote },
-      { new: true }
+      { returnDocument: 'after' }
     ).populate('mentee', 'email name');
 
     if (mentorship.mentee && mentorship.mentee.email) {

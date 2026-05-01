@@ -21,7 +21,7 @@ router.put('/me', auth, async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { $set: { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName, location, skills } },
-      { new: true }
+      { returnDocument: 'after' }
     ).select('-password');
     res.json(user);
   } catch (err) {
@@ -42,7 +42,7 @@ router.get('/admin/users', [auth, checkRole(['admin'])], async (req, res) => {
 // ADMIN: Verify a user
 router.put('/admin/verify/:id', [auth, checkRole(['admin'])], async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, { isVerified: true }, { new: true }).select('-password');
+    const user = await User.findByIdAndUpdate(req.params.id, { isVerified: true }, { returnDocument: 'after' }).select('-password');
     if (!user) return res.status(404).json({ msg: 'User not found' });
     res.json(user);
   } catch (err) {
