@@ -584,6 +584,55 @@ const MentorshipApprovals = ({ token }) => {
   );
 };
 
+// ─── Event Management Tab ──────────────────────────────────────────────────
+const EventManagement = ({ token }) => {
+  const [events, setEvents] = useState([]);
+  
+  useEffect(() => {
+    api(token).get('/events').then(r => setEvents(r.data)).catch(console.error);
+  }, [token]);
+
+  const del = async (id) => {
+    if (!confirm('Are you sure you want to delete this event?')) return;
+    await api(token).delete(`/events/${id}`);
+    setEvents(events.filter(e => e._id !== id));
+  };
+
+  return (
+    <div className="card">
+      <h3 style={{ marginBottom: '1.5rem' }}>Global Event Management</h3>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
+            <th style={{ padding: '1rem', textAlign: 'left' }}>Event Title</th>
+            <th style={{ padding: '1rem', textAlign: 'left' }}>Organized By</th>
+            <th style={{ padding: '1rem', textAlign: 'left' }}>Date</th>
+            <th style={{ padding: '1rem', textAlign: 'center' }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {events.map(e => (
+            <tr key={e._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+              <td style={{ padding: '1rem' }}>
+                <p style={{ fontWeight: 600, margin: 0 }}>{e.title}</p>
+                <span className="badge badge-alumni">{e.type}</span>
+              </td>
+              <td style={{ padding: '1rem' }}>{e.organizedByName}</td>
+              <td style={{ padding: '1rem' }}>{new Date(e.date).toLocaleDateString()}</td>
+              <td style={{ padding: '1rem', textAlign: 'center' }}>
+                <button onClick={() => del(e._id)} style={{ background: '#fee2e2', color: '#EF4444', border: 'none', borderRadius: '0.375rem', padding: '0.5rem', cursor: 'pointer' }}>
+                  <Trash2 size={16} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {events.length === 0 && <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No events scheduled.</p>}
+    </div>
+  );
+};
+
 // ─── Main Admin Portal ────────────────────────────────────────────────────────
 const AdminPortal = () => {
   const { user, logout } = useContext(AuthContext);
@@ -600,6 +649,7 @@ const AdminPortal = () => {
     { id: 'mentorship', icon: Star, label: 'Mentorship Approvals' },
     { id: 'fundraising', icon: IndianRupee, label: 'Fundraising Tools' },
     { id: 'resources', icon: Database, label: 'Resources & Accreditation' },
+    { id: 'events', icon: Calendar, label: 'Event Management' },
   ];
 
   return (
@@ -635,7 +685,7 @@ const AdminPortal = () => {
         <div className="header">
           <div>
             <h1 className="page-title">
-              {tab === 'users' ? 'User Management' : tab === 'resumes' ? 'Student Resumes' : tab === 'mentorship' ? 'Mentorship Approvals' : tab === 'fundraising' ? 'Fundraising & Donations' : 'Resources & Accreditation'}
+              {tab === 'users' ? 'User Management' : tab === 'resumes' ? 'Student Resumes' : tab === 'mentorship' ? 'Mentorship Approvals' : tab === 'fundraising' ? 'Fundraising & Donations' : tab === 'resources' ? 'Resources & Accreditation' : 'Event Management'}
             </h1>
             <p style={{ color: 'var(--text-muted)' }}>Institute Level — Full Control</p>
           </div>
@@ -648,6 +698,7 @@ const AdminPortal = () => {
           {tab === 'mentorship' && <MentorshipApprovals token={user.token} />}
           {tab === 'fundraising' && <FundraisingTab token={user.token} />}
           {tab === 'resources' && <ResourcesTab token={user.token} userName={user.name} />}
+          {tab === 'events' && <EventManagement token={user.token} />}
         </div>
       </main>
     </div>

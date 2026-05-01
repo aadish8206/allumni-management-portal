@@ -555,6 +555,12 @@ const EventManager = ({ token, userName }) => {
     setAttended(a => ({ ...a, [id]: true }));
   };
 
+  const deleteEvent = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this event?')) return;
+    await api(token).delete(`/events/${id}`);
+    setEvents(events.filter(e => e._id !== id));
+  };
+
   const typeColor = { reunion: '#4F46E5', seminar: '#10B981', workshop: '#F59E0B', other: '#6B7280' };
 
   return (
@@ -577,6 +583,11 @@ const EventManager = ({ token, userName }) => {
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                 {event.attendees?.length || 0} attending
               </span>
+              {(event.organizedBy === user._id || user.role === 'admin') && (
+                <button onClick={() => deleteEvent(event._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }} title="Delete Event">
+                  <Trash2 size={18} />
+                </button>
+              )}
             </div>
             <h3 style={{ marginBottom: '0.5rem' }}>{event.title}</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>{event.description}</p>

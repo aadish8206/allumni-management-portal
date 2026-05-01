@@ -6,10 +6,12 @@ const initCronJobs = () => {
   // Run every day at midnight
   cron.schedule('0 0 * * *', async () => {
     await performTransition();
+    await cleanupPastEvents();
   });
 
   // Also run once on server start for safety
   performTransition();
+  cleanupPastEvents();
 };
 
 const performTransition = async () => {
@@ -52,6 +54,22 @@ const performTransition = async () => {
     }
   } catch (err) {
     console.error('Error in autonomous transition:', err);
+  }
+};
+
+const cleanupPastEvents = async () => {
+  console.log('Running automatic event cleanup...');
+  try {
+    const Event = require('../models/Event');
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const result = await Event.deleteMany({ date: { $lt: yesterday } });
+    if (result.deletedCount > 0) {
+      console.log(`Automatically deleted ${result.deletedCount} past events.`);
+    }
+  } catch (err) {
+    console.error('Error in event cleanup:', err);
   }
 };
 
