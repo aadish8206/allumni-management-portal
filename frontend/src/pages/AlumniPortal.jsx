@@ -533,7 +533,8 @@ const GivingBack = ({ token, userName }) => {
 };
 
 // ─── Event Manager ─────────────────────────────────────────────────────────────
-const EventManager = ({ token, userName }) => {
+const EventManager = ({ token, user }) => {
+  const userName = user.name;
   const [events, setEvents] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', date: '', location: '', type: 'reunion' });
@@ -694,7 +695,7 @@ const AlumniPortal = () => {
           {tab === 'contact' && <DirectContact token={user.token} />}
           {tab === 'profile' && <ProfessionalProfile token={user.token} />}
           {tab === 'giving' && <GivingBack token={user.token} userName={user.name} />}
-          {tab === 'events' && <EventManager token={user.token} userName={user.name} />}
+          {tab === 'events' && <EventManager token={user.token} user={user} />}
         </div>
       </main>
     </div>
