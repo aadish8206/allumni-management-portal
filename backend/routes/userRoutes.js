@@ -1,8 +1,24 @@
 const express = require('express');
 const { auth, checkRole } = require('../middleware/authMiddleware');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 
 const router = express.Router();
+
+// Helper to send alumni welcome email
+const sendAlumniWelcomeEmail = async (user) => {
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: '🎓 Congratulations on your Graduation!',
+      message: `<h1>Welcome to the Alumni Network, ${user.name}!</h1>
+                <p>Your account has been upgraded to <strong>Alumni</strong> status.</p>
+                <p>You now have full access to alumni-only features like job referrals and mentorship offering.</p>`
+    });
+  } catch (err) {
+    console.error('Failed to send alumni welcome email:', err);
+  }
+};
 
 // Helper to automatically switch student to alumni
 const checkAndSwitchRole = async (user) => {
@@ -10,6 +26,7 @@ const checkAndSwitchRole = async (user) => {
   if (user.role === 'student' && user.graduationYear && currentYear >= user.graduationYear) {
     user.role = 'alumni';
     await user.save();
+    await sendAlumniWelcomeEmail(user);
     return true;
   }
   return false;
@@ -98,6 +115,8 @@ router.put('/admin/users/:id', [auth, checkRole(['admin'])], async (req, res) =>
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
+    const oldRole = user.role;
+
     if (name) user.name = name;
     if (email) user.email = email;
     if (role) user.role = role;
@@ -108,8 +127,13 @@ router.put('/admin/users/:id', [auth, checkRole(['admin'])], async (req, res) =>
 
     await user.save();
     
-    // Check if the update triggers a role switch (though admin can manually set role)
-    await checkAndSwitchRole(user);
+    // Check for manual switch or automatic switch
+    const switchedAutomatically = await checkAndSwitchRole(user);
+    
+    // If not switched automatically but role changed from student to alumni manually
+    if (!switchedAutomatically && oldRole === 'student' && user.role === 'alumni') {
+      await sendAlumniWelcomeEmail(user);
+    }
 
     const updatedUser = await User.findById(req.params.id).select('-password');
     res.json(updatedUser);
