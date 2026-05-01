@@ -62,6 +62,11 @@ export const AuthProvider = ({ children }) => {
       return updatedUser;
     } catch (error) {
       console.error('Failed to refresh user', error);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        logout();
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

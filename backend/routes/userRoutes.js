@@ -4,10 +4,26 @@ const User = require('../models/User');
 
 const router = express.Router();
 
+// Helper to automatically switch student to alumni
+const checkAndSwitchRole = async (user) => {
+  const currentYear = new Date().getFullYear();
+  if (user.role === 'student' && user.graduationYear && currentYear >= user.graduationYear) {
+    user.role = 'alumni';
+    await user.save();
+    return true;
+  }
+  return false;
+};
+
 // Get current user profile
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    
+    // Check for automatic transition
+    await checkAndSwitchRole(user);
+    
     res.json(user);
   } catch (err) {
     res.status(500).send('Server Error');
@@ -17,14 +33,39 @@ router.get('/me', auth, async (req, res) => {
 // Update current user profile
 router.put('/me', auth, async (req, res) => {
   try {
-    const { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName, location, skills } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName, location, skills } },
-      { returnDocument: 'after' }
-    ).select('-password');
-    res.json(user);
+    const { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName, location, skills, graduationYear } = req.body;
+    
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    // Update basic fields
+    const updates = { name, batch, department, company, jobTitle, bio, phone, linkedin, resumeBase64, resumeFileName, location, skills };
+    
+    // Logic for graduationYear (Pass out Year)
+    // Student can only fill it once (if it's not already set)
+    if (graduationYear !== undefined) {
+      if (req.user.role === 'admin') {
+        updates.graduationYear = graduationYear;
+      } else if (!user.graduationYear) {
+        updates.graduationYear = graduationYear;
+      }
+    }
+
+    Object.keys(updates).forEach(key => {
+      if (updates[key] !== undefined) {
+        user[key] = updates[key];
+      }
+    });
+
+    await user.save();
+    
+    // Check if the update triggers a role switch
+    await checkAndSwitchRole(user);
+
+    const updatedUser = await User.findById(req.user.id).select('-password');
+    res.json(updatedUser);
   } catch (err) {
+    console.error(err);
     res.status(500).send('Server Error');
   }
 });
@@ -45,6 +86,33 @@ router.put('/admin/verify/:id', [auth, checkRole(['admin'])], async (req, res) =
     const user = await User.findByIdAndUpdate(req.params.id, { isVerified: true }, { returnDocument: 'after' }).select('-password');
     if (!user) return res.status(404).json({ msg: 'User not found' });
     res.json(user);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
+// ADMIN: Update user details
+router.put('/admin/users/:id', [auth, checkRole(['admin'])], async (req, res) => {
+  try {
+    const { name, email, role, batch, department, graduationYear, isVerified } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    if (batch) user.batch = batch;
+    if (department) user.department = department;
+    if (graduationYear !== undefined) user.graduationYear = graduationYear;
+    if (isVerified !== undefined) user.isVerified = isVerified;
+
+    await user.save();
+    
+    // Check if the update triggers a role switch (though admin can manually set role)
+    await checkAndSwitchRole(user);
+
+    const updatedUser = await User.findById(req.params.id).select('-password');
+    res.json(updatedUser);
   } catch (err) {
     res.status(500).send('Server Error');
   }

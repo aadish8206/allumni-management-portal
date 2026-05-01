@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
   Shield, Users, Database, BarChart2, IndianRupee, Megaphone,
-  LogOut, CheckCircle, Trash2, Bell, BookOpen, TrendingUp, X, Home, Send, Star
+  LogOut, CheckCircle, Trash2, Bell, BookOpen, TrendingUp, X, Home, Send, Star, Calendar, Edit
 } from 'lucide-react';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
@@ -38,14 +38,70 @@ const Modal = ({ title, onClose, children }) => (
   </div>
 );
 
+// ─── Edit User Modal ──────────────────────────────────────────────────────────
+const EditUserModal = ({ user, onClose, onSave, token }) => {
+  const [form, setForm] = useState({ ...user });
+
+  const save = async () => {
+    try {
+      await api(token).put(`/users/admin/users/${user._id}`, form);
+      onSave();
+      onClose();
+    } catch (err) {
+      alert('Failed to update user');
+    }
+  };
+
+  return (
+    <Modal title={`Edit User: ${user.name}`} onClose={onClose}>
+      <div className="form-group">
+        <label className="form-label">Full Name</label>
+        <input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+      </div>
+      <div className="form-group">
+        <label className="form-label">Email</label>
+        <input className="form-input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+      </div>
+      <div className="form-group">
+        <label className="form-label">Role</label>
+        <select className="form-input" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
+          <option value="student">Student</option>
+          <option value="alumni">Alumni</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="form-group">
+          <label className="form-label">Batch</label>
+          <input className="form-input" value={form.batch || ''} onChange={e => setForm({ ...form, batch: e.target.value })} />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Pass out Year</label>
+          <input type="number" className="form-input" value={form.graduationYear || ''} onChange={e => setForm({ ...form, graduationYear: e.target.value })} />
+        </div>
+      </div>
+      <div className="form-group">
+        <label className="form-label">Department</label>
+        <input className="form-input" value={form.department || ''} onChange={e => setForm({ ...form, department: e.target.value })} />
+      </div>
+      <button className="btn btn-primary" style={{ width: '100%' }} onClick={save}>Save Changes</button>
+    </Modal>
+  );
+};
+
 // ─── User Management Tab ──────────────────────────────────────────────────────
 const UserManagement = ({ token, stats }) => {
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [editingUser, setEditingUser] = useState(null);
+
+  const fetchUsers = () => {
+    api(token).get('/users/admin/users').then(r => setUsers(r.data)).catch(console.error);
+  };
 
   useEffect(() => {
-    api(token).get('/users/admin/users').then(r => setUsers(r.data)).catch(console.error);
+    fetchUsers();
   }, [token]);
 
   const verify = async (id) => {
@@ -126,7 +182,7 @@ const UserManagement = ({ token, stats }) => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border-color)' }}>
-                  {['Name', 'Email', 'Role', 'Batch', 'Department', 'Status', 'Actions'].map(h => (
+                  {['Name', 'Email', 'Role', 'Batch', 'Pass out Year', 'Dept', 'Status', 'Actions'].map(h => (
                     <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 600 }}>{h}</th>
                   ))}
                 </tr>
@@ -140,6 +196,7 @@ const UserManagement = ({ token, stats }) => {
                       <span className={`badge badge-${u.role}`}>{u.role}</span>
                     </td>
                     <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.batch || '-'}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--primary)', fontWeight: 700 }}>{u.graduationYear || '-'}</td>
                     <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{u.department || '-'}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       {u.role === 'admin' ? '-' : (u.isVerified
@@ -154,6 +211,9 @@ const UserManagement = ({ token, stats }) => {
                             Verify
                           </button>
                         )}
+                        <button onClick={() => setEditingUser(u)} style={{ background: '#e0e7ff', color: '#4F46E5', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+                          <Edit size={14} />
+                        </button>
                         <button onClick={() => deleteUser(u._id)} style={{ background: '#fee2e2', color: '#EF4444', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem' }}>
                           <Trash2 size={14} />
                         </button>
@@ -167,6 +227,7 @@ const UserManagement = ({ token, stats }) => {
           </div>
         </div>
       </div>
+      {editingUser && <EditUserModal user={editingUser} onClose={() => setEditingUser(null)} onSave={fetchUsers} token={token} />}
     </div>
   );
 };

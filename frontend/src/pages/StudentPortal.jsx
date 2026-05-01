@@ -450,7 +450,8 @@ const StudentProfile = ({ token }) => {
             </div>
             <div>
               <h2 style={{ margin: 0 }}>{profile.name}</h2>
-              <span className="badge badge-student" style={{ marginTop: '0.5rem', display: 'inline-block' }}>Student • {profile.batch || 'N/A'} • {profile.department || 'N/A'}</span>
+              <span className="badge badge-student" style={{ marginTop: '0.5rem', display: 'inline-block' }}>Student • Batch {profile.batch || 'N/A'} • {profile.department || 'N/A'}</span>
+              {profile.graduationYear && <p style={{ margin: '0.25rem 0 0', color: 'var(--primary)', fontSize: '0.875rem', fontWeight: 600 }}>🎓 Pass out Year: {profile.graduationYear}</p>}
               {profile.location && <p style={{ margin: '0.25rem 0 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>📍 {profile.location}</p>}
             </div>
           </div>
@@ -469,8 +470,20 @@ const StudentProfile = ({ token }) => {
               <input type="text" className="form-input" value={form.name || ''} onChange={e => setForm({ ...form, name: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label">Batch (Year)</label>
+              <label className="form-label">Batch (e.g. A1)</label>
               <input type="text" className="form-input" value={form.batch || ''} onChange={e => setForm({ ...form, batch: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Pass out Year (Graduation)</label>
+              <input 
+                type="number" 
+                className="form-input" 
+                value={form.graduationYear || ''} 
+                onChange={e => setForm({ ...form, graduationYear: e.target.value })} 
+                disabled={profile.graduationYear}
+                placeholder="e.g. 2024"
+              />
+              {profile.graduationYear && <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Contact admin to change this.</p>}
             </div>
             <div className="form-group">
               <label className="form-label">Department</label>
@@ -519,6 +532,10 @@ const StudentProfile = ({ token }) => {
           <div style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
             <span style={{ fontWeight: 600, width: '120px', color: 'var(--text-muted)' }}>Bio</span>
             <span>{profile.bio || 'Not set'}</span>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
+            <span style={{ fontWeight: 600, width: '120px', color: 'var(--text-muted)' }}>Pass out Year</span>
+            <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{profile.graduationYear || 'Not set'}</span>
           </div>
           <div style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', alignItems: 'center' }}>
             <span style={{ fontWeight: 600, width: '120px', color: 'var(--text-muted)' }}>Resume</span>
