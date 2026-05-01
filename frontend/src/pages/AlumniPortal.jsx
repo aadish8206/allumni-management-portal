@@ -5,11 +5,30 @@ import {
   IndianRupee, LogOut, Send, Star, Plus, X, Edit, Check, Inbox, Trash2, Home
 } from 'lucide-react';
 import axios from 'axios';
+import { ensureProtocol, getLinkedInVanity } from '../utils/url';
 
 const api = (token) => axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
   headers: { 'x-auth-token': token }
 });
+
+const LinkedInBadge = ({ url }) => {
+  const vanity = getLinkedInVanity(url);
+  useEffect(() => {
+    if (window.LIRenderAll) {
+      window.LIRenderAll();
+    }
+  }, [url]);
+
+  if (!vanity) return null;
+  return (
+    <div style={{ marginTop: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', background: '#f9f9f9', display: 'flex', justifyContent: 'center' }}>
+      <div className="LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="light" data-type="vertical" data-vanity={vanity} data-version="v1">
+        <a className="LI-simple-link" href={`https://in.linkedin.com/in/${vanity}?trk=profile-badge`}>{vanity} Profile</a>
+      </div>
+    </div>
+  );
+};
 
 const Modal = ({ title, onClose, children }) => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
@@ -263,7 +282,7 @@ const ProfessionalProfile = ({ token }) => {
                 style={{ background: '#0077b5', color: 'white' }}
                 onClick={() => {
                   if (!form.linkedin) return alert('Please enter your LinkedIn URL first.');
-                  window.open(form.linkedin, '_blank');
+                  window.open(ensureProtocol(form.linkedin), '_blank');
                   const role = prompt('Enter your current Job Title (e.g. Senior Developer):');
                   const company = prompt('Enter your current Company (e.g. Google):');
                   if (role) setForm(prev => ({ ...prev, jobTitle: role }));
@@ -291,15 +310,16 @@ const ProfessionalProfile = ({ token }) => {
           <h3 style={{ marginBottom: '1.5rem' }}>Profile Details</h3>
           {[
             ['Email', profile.email],
-            ['Phone', profile.phone || 'Not set'],
-            ['LinkedIn', profile.linkedin || 'Not set'],
-            ['Bio', profile.bio || 'No bio added yet.'],
+            ['Phone', profile.phone || 'N/A'],
+            ['LinkedIn', profile.linkedin ? <a href={ensureProtocol(profile.linkedin)} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>{profile.linkedin}</a> : 'N/A'],
+            ['Bio', profile.bio || 'No bio.'],
           ].map(([label, value]) => (
             <div key={label} style={{ display: 'flex', gap: '1rem', padding: '0.75rem 0', borderBottom: '1px solid var(--border-color)' }}>
               <span style={{ fontWeight: 600, width: '120px', flexShrink: 0, color: 'var(--text-muted)' }}>{label}</span>
               <span>{value}</span>
             </div>
           ))}
+          <LinkedInBadge url={profile.linkedin} />
         </div>
       )}
     </div>

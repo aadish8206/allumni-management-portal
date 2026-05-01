@@ -5,11 +5,30 @@ import {
   LogOut, Search, Send, Filter, X, Star, CheckCircle, Home
 } from 'lucide-react';
 import axios from 'axios';
+import { ensureProtocol, getLinkedInVanity } from '../utils/url';
 
 const api = (token) => axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
   headers: { 'x-auth-token': token }
 });
+
+const LinkedInBadge = ({ url }) => {
+  const vanity = getLinkedInVanity(url);
+  useEffect(() => {
+    if (window.LIRenderAll) {
+      window.LIRenderAll();
+    }
+  }, [url]);
+
+  if (!vanity) return null;
+  return (
+    <div style={{ marginTop: '1rem', marginBottom: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', background: '#f9f9f9', display: 'flex', justifyContent: 'center' }}>
+      <div className="LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="light" data-type="vertical" data-vanity={vanity} data-version="v1">
+        <a className="LI-simple-link" href={`https://in.linkedin.com/in/${vanity}?trk=profile-badge`}>{vanity} Profile</a>
+      </div>
+    </div>
+  );
+};
 
 const Modal = ({ title, onClose, children }) => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
@@ -103,7 +122,14 @@ const BatchTracking = ({ token }) => {
                 {alum.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h4 style={{ margin: 0 }}>{alum.name}</h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h4 style={{ margin: 0 }}>{alum.name}</h4>
+                  {alum.linkedin && (
+                    <a href={ensureProtocol(alum.linkedin)} target="_blank" rel="noreferrer" title="LinkedIn Profile" style={{ color: '#0077b5' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    </a>
+                  )}
+                </div>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                   {alum.jobTitle ? `${alum.jobTitle} at ${alum.company || 'N/A'}` : alum.department}
                 </p>
@@ -143,6 +169,7 @@ const BatchTracking = ({ token }) => {
             </div>
           ) : (
             <>
+              <LinkedInBadge url={selected.linkedin} />
               <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Send a message to {selected.name} for career guidance or mentorship.</p>
               <div className="form-group">
                 <label className="form-label">Your Message</label>
@@ -323,7 +350,7 @@ const OpportunityBoard = ({ token }) => {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
               {job.applyLink && (
-                <a href={job.applyLink} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', width: '100%', textAlign: 'center' }}>
+                <a href={ensureProtocol(job.applyLink)} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', width: '100%', textAlign: 'center' }}>
                   Apply →
                 </a>
               )}
