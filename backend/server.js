@@ -56,9 +56,22 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/alumni_po
   })
   .catch((err) => console.log('MongoDB connection error:', err.message));
 
-// Basic route
+// Basic route & Health Check
 app.get('/', (req, res) => {
   res.send('Alumni Portal API is running');
+});
+
+app.get('/api/health', (req, res) => {
+  const dbStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  const dbState = dbStates[mongoose.connection.readyState] || 'unknown';
+  res.json({
+    status: 'ok',
+    database: dbState,
+    hasMongoUri: Boolean(process.env.MONGODB_URI),
+    hasSmtpUser: Boolean(process.env.SMTP_USER || process.env.EMAIL_USER),
+    hasSmtpPass: Boolean(process.env.SMTP_PASS || process.env.EMAIL_PASS),
+    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173'
+  });
 });
 
 const PORT = process.env.PORT || 5000;

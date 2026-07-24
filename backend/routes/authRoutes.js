@@ -50,8 +50,10 @@ router.post('/register', authLimiter, async (req, res) => {
       return res.status(400).json({ msg: 'Role must be student or alumni' });
     }
 
+    const cleanEmail = email.toLowerCase().trim();
+
     // Check for existing user
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: cleanEmail });
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
@@ -60,12 +62,12 @@ router.post('/register', authLimiter, async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     user = new User({
-      name,
-      email,
+      name: name.trim(),
+      email: cleanEmail,
       password: hashedPassword,
       role,
-      batch,
-      department
+      batch: batch ? batch.trim() : undefined,
+      department: department ? department.trim() : undefined
     });
 
     await user.save();
@@ -74,7 +76,7 @@ router.post('/register', authLimiter, async (req, res) => {
       user: {
         id: user.id,
         role: user.role
-      } // Include role in payload
+      }
     };
 
     jwt.sign(
@@ -87,8 +89,8 @@ router.post('/register', authLimiter, async (req, res) => {
       }
     );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('Register error:', err);
+    res.status(500).json({ msg: 'Registration failed due to a server error. Please try again.' });
   }
 });
 
@@ -101,7 +103,8 @@ router.post('/login', authLimiter, async (req, res) => {
       return res.status(400).json({ msg: 'Please enter all fields' });
     }
 
-    let user = await User.findOne({ email });
+    const cleanEmail = email.toLowerCase().trim();
+    let user = await User.findOne({ email: cleanEmail });
     if (!user) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
@@ -141,9 +144,10 @@ router.post('/forgot-password', async (req, res) => {
       return res.status(400).json({ msg: 'Please provide an email address' });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    // Case-insensitive email query
+    const user = await User.findOne({ email: new RegExp('^' + email.trim() + '$', 'i') });
     if (!user) {
-      return res.status(404).json({ msg: 'No account registered with that email address.' });
+      return res.status(404).json({ msg: 'No registered account was found with that email address.' });
     }
 
     // Get reset token
