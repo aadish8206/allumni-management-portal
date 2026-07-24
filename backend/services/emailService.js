@@ -1,6 +1,5 @@
 const nodemailer = require('nodemailer');
 
-// Configure this in .env or Render dashboard
 const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
@@ -12,7 +11,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-console.log(`[EMAIL SERVICE] Initialized for: ${smtpUser}`);
+console.log(`[EMAIL SERVICE] Initialized for: ${smtpUser ? smtpUser : 'NO SMTP USER SPECIFIED'}`);
 
 /**
  * Send an email
@@ -24,30 +23,28 @@ console.log(`[EMAIL SERVICE] Initialized for: ${smtpUser}`);
 const sendEmail = async (to, subject, html, bcc = null) => {
   try {
     const mailOptions = {
-      from: process.env.SMTP_FROM || `"Alumni Portal" <${process.env.SMTP_USER}>`,
+      from: process.env.SMTP_FROM || `"Alumni Portal" <${smtpUser}>`,
       to,
       bcc,
       subject,
       html
     };
 
-    // Send real email if credentials are provided
-    if (smtpUser && smtpPass) {
+    if (smtpUser && smtpPass && smtpPass !== 'your_app_password_here') {
       const info = await transporter.sendMail(mailOptions);
-      console.log('Email sent: ' + info.messageId);
+      console.log('[EMAIL SERVICE] Email sent successfully:', info.messageId);
       return true;
     } else {
-      // Fallback for development if no credentials
       console.log('----------------------------------------------------');
-      console.log(`[MOCK EMAIL LOG] Set SMTP_USER/PASS in .env for real emails`);
+      console.log(`[MOCK EMAIL LOG] Set valid SMTP_USER/SMTP_PASS in .env for real emails`);
       console.log(`To: ${to}`);
       console.log(`Subject: ${subject}`);
       console.log('----------------------------------------------------');
       return true;
     }
   } catch (error) {
-    console.error('Email sending failed:', error);
-    return false;
+    console.error('[EMAIL SERVICE ERROR] Email sending failed:', error.message);
+    throw error;
   }
 };
 
