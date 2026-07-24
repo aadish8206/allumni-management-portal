@@ -9,14 +9,29 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-    const name = localStorage.getItem('name');
-    const id = localStorage.getItem('userId');
-    if (token && role) {
-      // In a real app we would verify token with backend
-      setUser({ token, role, name, _id: id });
+    if (!token) {
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+    // Validate token with backend on every app load
+    axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, {
+      headers: { 'x-auth-token': token }
+    })
+      .then(res => {
+        localStorage.setItem('role', res.data.role);
+        localStorage.setItem('name', res.data.name);
+        localStorage.setItem('userId', res.data._id);
+        setUser({ token, role: res.data.role, name: res.data.name, _id: res.data._id });
+      })
+      .catch(() => {
+        // Token is invalid or expired — clear everything
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        localStorage.removeItem('name');
+        localStorage.removeItem('userId');
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const login = async (email, password) => {

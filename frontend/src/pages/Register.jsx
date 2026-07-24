@@ -29,6 +29,15 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Frontend password strength validation
+    if (formData.password.length < 8) {
+      return setError('Password must be at least 8 characters long');
+    }
+    if (!/[a-zA-Z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      return setError('Password must contain at least one letter and one number');
+    }
+
     const result = await register(formData);
     if (result.success) {
       navigate(`/${result.role}-portal`);
@@ -63,7 +72,8 @@ const Register = () => {
           
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input type="password" className="form-input" name="password" value={formData.password} onChange={handleChange} required />
+            <input type="password" className="form-input" name="password" value={formData.password} onChange={handleChange} required minLength={8} />
+            <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Min 8 characters with at least 1 letter and 1 number</small>
           </div>
 
           <div className="form-group">
@@ -71,7 +81,7 @@ const Register = () => {
              <select className="form-input" name="role" value={formData.role} onChange={handleChange}>
                <option value="student">Current Student</option>
                <option value="alumni">Alumni</option>
-               <option value="admin">Administrator</option>
+               {/* Admin accounts must be created directly in the database — not via public registration */}
              </select>
           </div>
 

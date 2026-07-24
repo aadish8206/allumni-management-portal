@@ -2,17 +2,28 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const helmet = require('helmet');
+const morgan = require('morgan');
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
+// Security Headers (helmet)
+app.use(helmet());
+
+// HTTP Request Logging
+app.use(morgan('combined'));
+
+// CORS — only allow configured frontend origin
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
-app.use(express.json());
+
+// Body Parsing with size limit to prevent DoS
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Routes
 const authRoutes = require('./routes/authRoutes');

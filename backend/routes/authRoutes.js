@@ -4,16 +4,50 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 
+// Rate limiter: max 10 auth attempts per 15 minutes per IP
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { msg: 'Too many attempts from this IP. Please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // Register Route
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     const { name, email, password, role, batch, department } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ msg: 'Please enter all required fields' });
+    }
+
+    // Name validation
+    if (name.trim().length < 2 || name.trim().length > 100) {
+      return res.status(400).json({ msg: 'Name must be between 2 and 100 characters' });
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ msg: 'Please enter a valid email address' });
+    }
+
+    // Password strength: minimum 8 chars, at least one letter and one number
+    if (password.length < 8) {
+      return res.status(400).json({ msg: 'Password must be at least 8 characters long' });
+    }
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      return res.status(400).json({ msg: 'Password must contain at least one letter and one number' });
+    }
+
+    // Role validation
+    if (!['student', 'alumni'].includes(role)) {
+      return res.status(400).json({ msg: 'Role must be student or alumni' });
     }
 
     // Check for existing user
@@ -45,8 +79,8 @@ router.post('/register', async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'secretkey',
-      { expiresIn: 360000 },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
@@ -59,7 +93,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login Route
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -86,8 +120,8 @@ router.post('/login', async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'secretkey',
-      { expiresIn: 360000 },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });

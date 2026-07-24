@@ -1,4 +1,15 @@
 node_modules/
+
+# NEVER commit environment files — they contain secrets (passwords, keys, DB credentials)
 .env
-dist/
+.env.*
+*.env
+*.local
+
+# Logs
 *.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db

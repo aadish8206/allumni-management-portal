@@ -8,6 +8,18 @@ const router = express.Router();
 router.post('/', [auth, checkRole(['alumni'])], async (req, res) => {
   try {
     const { amount, project, message } = req.body;
+
+    // Validate amount — must be a positive number
+    if (amount === undefined || typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ msg: 'amount must be a positive number' });
+    }
+    // Cap at a reasonable max to prevent data corruption
+    if (amount > 10000000) {
+      return res.status(400).json({ msg: 'amount exceeds maximum allowed value' });
+    }
+    if (!project) return res.status(400).json({ msg: 'project is required' });
+    if (message && message.length > 500) return res.status(400).json({ msg: 'message too long (max 500 chars)' });
+
     const User = require('../models/User');
     const donor = await User.findById(req.user.id).select('name');
     const donation = new Donation({
@@ -18,7 +30,7 @@ router.post('/', [auth, checkRole(['alumni'])], async (req, res) => {
       message
     });
     await donation.save();
-    
+
     const Campaign = require('../models/Campaign');
     await Campaign.findOneAndUpdate({ title: project }, { $inc: { raisedAmount: amount } });
 

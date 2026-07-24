@@ -14,7 +14,19 @@ import Home from './pages/Home';
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useContext(AuthContext);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '100vh', background: 'var(--bg-primary, #0f172a)'
+    }}>
+      <div style={{
+        width: 48, height: 48, border: '4px solid rgba(255,255,255,0.1)',
+        borderTopColor: '#6366f1', borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 
   if (!user) {
     return <Navigate to="/login" replace />;

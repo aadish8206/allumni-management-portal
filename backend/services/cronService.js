@@ -61,12 +61,12 @@ const cleanupPastEvents = async () => {
   console.log('Running automatic event cleanup...');
   try {
     const Event = require('../models/Event');
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 7); // 7-day grace period
     
-    const result = await Event.deleteMany({ date: { $lt: yesterday } });
+    const result = await Event.deleteMany({ date: { $lt: cutoffDate } });
     if (result.deletedCount > 0) {
-      console.log(`Automatically deleted ${result.deletedCount} past events.`);
+      console.log(`Automatically deleted ${result.deletedCount} events older than 7 days.`);
     }
   } catch (err) {
     console.error('Error in event cleanup:', err);

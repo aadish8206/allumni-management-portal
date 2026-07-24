@@ -90,7 +90,7 @@ router.put('/me', auth, async (req, res) => {
 // ADMIN: Get all users
 router.get('/admin/users', [auth, checkRole(['admin'])], async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const users = await User.find().select('-password -resumeBase64').sort({ createdAt: -1 });
     res.json(users);
   } catch (err) {
     res.status(500).send('Server Error');
@@ -156,10 +156,10 @@ router.delete('/admin/users/:id', [auth, checkRole(['admin'])], async (req, res)
 router.get('/directory', [auth, checkRole(['student', 'alumni', 'admin'])], async (req, res) => {
   try {
     const { batch, department } = req.query;
-    let query = { role: 'alumni', isVerified: { $ne: false } };
+    let query = { role: 'alumni', isVerified: true }; // Fixed: true only, not { $ne: false }
     if (batch) query.batch = batch;
     if (department) query.department = department;
-    const alumni = await User.find(query).select('-password').sort({ createdAt: -1 });
+    const alumni = await User.find(query).select('-password -resumeBase64').sort({ createdAt: -1 });
     res.json(alumni);
   } catch (err) {
     res.status(500).send('Server Error');
@@ -169,7 +169,7 @@ router.get('/directory', [auth, checkRole(['student', 'alumni', 'admin'])], asyn
 // Get all students (for alumni to message)
 router.get('/students', [auth, checkRole(['alumni', 'admin'])], async (req, res) => {
   try {
-    const students = await User.find({ role: 'student' }).select('-password');
+    const students = await User.find({ role: 'student' }).select('-password -resumeBase64');
     res.json(students);
   } catch (err) {
     res.status(500).send('Server Error');
