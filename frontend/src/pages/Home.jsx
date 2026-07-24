@@ -29,14 +29,14 @@ const TiltCard = ({ children, style = {} }) => {
     const rotateX = ((y - centerY) / centerY) * -12;
     const rotateY = ((x - centerX) / centerX) * 12;
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
-    card.style.boxShadow = `${-rotateY * 2}px ${rotateX * 2}px 40px rgba(99,102,241,0.3)`;
+    card.style.boxShadow = `${-rotateY * 2}px ${rotateX * 2}px 40px rgba(99,102,241,0.4)`;
   };
 
   const handleMouseLeave = () => {
     const card = cardRef.current;
     if (!card) return;
     card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
-    card.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
+    card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
     card.style.transition = 'transform 0.5s ease, box-shadow 0.5s ease';
   };
 
@@ -66,8 +66,8 @@ const FloatingOrb = ({ color, size, top, left, delay = 0 }) => (
     height: size,
     borderRadius: '50%',
     background: `radial-gradient(circle at 30% 30%, ${color}, transparent)`,
-    filter: 'blur(40px)',
-    opacity: 0.4,
+    filter: 'blur(45px)',
+    opacity: 0.5,
     animation: `floatOrb 6s ease-in-out ${delay}s infinite alternate`,
     pointerEvents: 'none',
     zIndex: 0,
@@ -114,33 +114,33 @@ const Home = () => {
       icon: <Network size={32} />,
       title: "Global Alumni Network",
       description: "Connect with graduates worldwide, build meaningful relationships, and expand your professional circle.",
-      color: "#6366f1",
-      bg: "rgba(99,102,241,0.15)",
-      glow: "rgba(99,102,241,0.4)"
+      color: "#818cf8",
+      bg: "rgba(99,102,241,0.2)",
+      glow: "rgba(99,102,241,0.5)"
     },
     {
       icon: <Briefcase size={32} />,
       title: "Career Opportunities",
       description: "Access exclusive job postings, internships, and referral opportunities shared directly by alumni.",
-      color: "#10B981",
-      bg: "rgba(16,185,129,0.15)",
-      glow: "rgba(16,185,129,0.4)"
+      color: "#34d399",
+      bg: "rgba(16,185,129,0.2)",
+      glow: "rgba(16,185,129,0.5)"
     },
     {
       icon: <BookOpen size={32} />,
       title: "Mentorship Programs",
       description: "Get guidance from experienced professionals or give back by mentoring the next generation of students.",
-      color: "#F59E0B",
-      bg: "rgba(245,158,11,0.15)",
-      glow: "rgba(245,158,11,0.4)"
+      color: "#fbbf24",
+      bg: "rgba(245,158,11,0.2)",
+      glow: "rgba(245,158,11,0.5)"
     },
     {
       icon: <Calendar size={32} />,
       title: "Events & Reunions",
       description: "Stay updated on batch reunions, technical workshops, and seminars happening on campus.",
-      color: "#EC4899",
-      bg: "rgba(236,72,153,0.15)",
-      glow: "rgba(236,72,153,0.4)"
+      color: "#f472b6",
+      bg: "rgba(236,72,153,0.2)",
+      glow: "rgba(236,72,153,0.5)"
     }
   ];
 
@@ -152,7 +152,7 @@ const Home = () => {
   ];
 
   return (
-    <>
+    <div style={{ background: '#0f172a', color: '#ffffff', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
       <style>{`
         @keyframes floatOrb {
           from { transform: translateY(0px) scale(1); }
@@ -161,10 +161,6 @@ const Home = () => {
         @keyframes floatBadge {
           0%, 100% { transform: translateY(0px); }
           50%       { transform: translateY(-8px); }
-        }
-        @keyframes shimmer {
-          0%   { background-position: -200% center; }
-          100% { background-position: 200% center; }
         }
         @keyframes gradientText {
           0%   { background-position: 0% 50%; }
@@ -176,15 +172,15 @@ const Home = () => {
           50%       { box-shadow: 0 0 40px rgba(99,102,241,0.8), 0 0 80px rgba(99,102,241,0.4); }
         }
         @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-60px); }
+          from { opacity: 0; transform: translateX(-50px); }
           to   { opacity: 1; transform: translateX(0); }
         }
         @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(60px); }
+          from { opacity: 0; transform: translateX(50px); }
           to   { opacity: 1; transform: translateX(0); }
         }
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(40px); }
+          from { opacity: 0; transform: translateY(30px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         .feature-card-3d:hover .feature-glow {
@@ -201,7 +197,7 @@ const Home = () => {
           transition: all 0.3s ease;
         }
         .stat-card-3d:hover {
-          transform: translateY(-8px) scale(1.05);
+          transform: translateY(-8px) scale(1.04);
           box-shadow: 0 20px 60px rgba(99,102,241,0.4) !important;
         }
       `}</style>
@@ -212,15 +208,15 @@ const Home = () => {
 
           {/* Floating Orbs */}
           <FloatingOrb color="#6366f1" size="300px" top="10%" left="60%" delay={0} />
-          <FloatingOrb color="#d97706" size="200px" top="60%" left="80%" delay={1.5} />
-          <FloatingOrb color="#10B981" size="150px" top="20%" left="5%" delay={3} />
+          <FloatingOrb color="#d97706" size="220px" top="55%" left="75%" delay={1.5} />
+          <FloatingOrb color="#10B981" size="180px" top="15%" left="5%" delay={3} />
 
           {/* Navigation */}
           <nav style={{
             position: 'sticky', top: 0, zIndex: 100,
-            background: 'rgba(15,23,42,0.7)',
+            background: 'rgba(15,23,42,0.85)',
             backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid rgba(99,102,241,0.2)',
+            borderBottom: '1px solid rgba(99,102,241,0.3)',
             padding: '1rem 2rem',
           }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -230,22 +226,22 @@ const Home = () => {
                   borderRadius: '12px', padding: '8px',
                   animation: 'pulse3d 3s ease-in-out infinite',
                 }}>
-                  <GraduationCap size={24} color="white" />
+                  <GraduationCap size={26} color="white" />
                 </div>
-                <span style={{ color: 'white', fontWeight: 700, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Alumni Connect</span>
+                <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '1.35rem', letterSpacing: '-0.02em' }}>Alumni Connect</span>
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <Link to="/login" className="nav-btn-3d" style={{
-                  padding: '0.6rem 1.5rem', borderRadius: '10px', color: 'white',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  background: 'rgba(255,255,255,0.05)',
-                  fontWeight: 500, textDecoration: 'none',
+                  padding: '0.6rem 1.5rem', borderRadius: '10px', color: '#ffffff',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  background: 'rgba(255,255,255,0.1)',
+                  fontWeight: 600, textDecoration: 'none',
                 }}>Login</Link>
                 <Link to="/register" className="nav-btn-3d" style={{
-                  padding: '0.6rem 1.5rem', borderRadius: '10px', color: 'white',
+                  padding: '0.6rem 1.5rem', borderRadius: '10px', color: '#ffffff',
                   background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                  fontWeight: 600, textDecoration: 'none',
-                  boxShadow: '0 4px 15px rgba(99,102,241,0.4)',
+                  fontWeight: 700, textDecoration: 'none',
+                  boxShadow: '0 4px 20px rgba(99,102,241,0.5)',
                 }}>Join Now</Link>
               </div>
             </div>
@@ -254,125 +250,124 @@ const Home = () => {
           {/* Hero Content */}
           <div style={{
             maxWidth: '1200px', margin: '0 auto',
-            padding: '8rem 2rem 6rem',
+            padding: '6rem 2rem 5rem',
             display: 'grid', gridTemplateColumns: '1fr 1fr',
-            gap: '4rem', alignItems: 'center',
+            gap: '3.5rem', alignItems: 'center',
           }}>
             <div style={{ animation: 'slideInLeft 0.8s ease forwards' }}>
               {/* Badge */}
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: 'rgba(245,158,11,0.15)',
-                border: '1px solid rgba(245,158,11,0.3)',
-                borderRadius: '999px', padding: '6px 16px',
-                marginBottom: '2rem',
+                background: 'rgba(245,158,11,0.2)',
+                border: '1px solid rgba(245,158,11,0.4)',
+                borderRadius: '999px', padding: '8px 18px',
+                marginBottom: '1.75rem',
                 animation: 'floatBadge 3s ease-in-out infinite',
               }}>
-                <Award size={16} color="#F59E0B" />
-                <span style={{ color: '#F59E0B', fontSize: '0.875rem', fontWeight: 500 }}>The official platform for our graduates</span>
+                <Award size={18} color="#fbbf24" />
+                <span style={{ color: '#fbbf24', fontSize: '0.9rem', fontWeight: 700 }}>The official platform for our graduates</span>
               </div>
 
               <h1 style={{
-                fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                fontWeight: 800,
-                color: 'white',
-                lineHeight: 1.1,
+                fontSize: 'clamp(2.5rem, 4.5vw, 3.75rem)',
+                fontWeight: 900,
+                color: '#ffffff',
+                lineHeight: 1.15,
                 marginBottom: '1.5rem',
                 letterSpacing: '-0.03em',
               }}>
                 Your Lifelong Connection to{' '}
                 <span style={{
-                  background: 'linear-gradient(90deg, #6366f1, #a855f7, #d97706, #6366f1)',
+                  background: 'linear-gradient(90deg, #818cf8, #c084fc, #fbbf24, #818cf8)',
                   backgroundSize: '300% auto',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   animation: 'gradientText 4s linear infinite',
+                  display: 'inline-block'
                 }}>
                   Excellence & Opportunity
                 </span>
               </h1>
 
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.125rem', lineHeight: 1.7, marginBottom: '3rem' }}>
+              <p style={{ color: '#cbd5e1', fontSize: '1.15rem', lineHeight: 1.7, marginBottom: '2.5rem', fontWeight: 400 }}>
                 Bridge the gap between campus life and the professional world.
                 Join thousands of alumni and students networking, sharing opportunities, and growing together.
               </p>
 
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
                 <Link to="/register" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  padding: '1rem 2rem', borderRadius: '12px',
+                  display: 'inline-flex', alignItems: 'center', gap: '10px',
+                  padding: '1.1rem 2.25rem', borderRadius: '14px',
                   background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                  color: 'white', fontWeight: 700, fontSize: '1rem',
+                  color: '#ffffff', fontWeight: 800, fontSize: '1.05rem',
                   textDecoration: 'none',
                   boxShadow: '0 8px 30px rgba(99,102,241,0.5)',
                   transition: 'all 0.3s ease',
                   animation: 'pulse3d 3s ease-in-out infinite',
-                }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'}
-                   onMouseOut={e => e.currentTarget.style.transform = 'none'}>
+                }}>
                   Get Started <ArrowRight size={20} />
                 </Link>
                 <Link to="/login" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  padding: '1rem 2rem', borderRadius: '12px',
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  color: 'white', fontWeight: 600, fontSize: '1rem',
+                  display: 'inline-flex', alignItems: 'center', gap: '10px',
+                  padding: '1.1rem 2.25rem', borderRadius: '14px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  color: '#ffffff', fontWeight: 700, fontSize: '1.05rem',
                   textDecoration: 'none',
                   backdropFilter: 'blur(10px)',
                   transition: 'all 0.3s ease',
-                }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                   onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
+                }}>
                   Sign In to Portal
                 </Link>
               </div>
             </div>
 
-            {/* 3D Floating Card on right */}
+            {/* 3D Floating Preview Card */}
             <div style={{ animation: 'slideInRight 0.8s ease 0.2s both', display: 'flex', justifyContent: 'center' }}>
               <TiltCard style={{
-                background: 'rgba(255,255,255,0.05)',
+                background: 'rgba(15, 23, 42, 0.85)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid rgba(99, 102, 241, 0.35)',
                 borderRadius: '24px',
                 padding: '2.5rem',
-                width: '100%', maxWidth: '420px',
+                width: '100%', maxWidth: '440px',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
               }}>
-                {/* Mock portal preview card */}
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <GraduationCap size={24} color="white" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '1.75rem' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(99,102,241,0.4)' }}>
+                      <GraduationCap size={28} color="white" />
                     </div>
                     <div>
-                      <div style={{ color: 'white', fontWeight: 700 }}>Alumni Portal</div>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>Connected Network</div>
+                      <div style={{ color: '#ffffff', fontWeight: 800, fontSize: '1.1rem' }}>Alumni Portal</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Connected Network</div>
                     </div>
                   </div>
                   {[
-                    { label: 'New Job Referrals', value: '24', color: '#10B981' },
-                    { label: 'Mentorship Requests', value: '8', color: '#6366f1' },
-                    { label: 'Upcoming Events', value: '3', color: '#F59E0B' },
+                    { label: 'New Job Referrals', value: '24', color: '#34d399' },
+                    { label: 'Mentorship Requests', value: '8', color: '#818cf8' },
+                    { label: 'Upcoming Events', value: '3', color: '#fbbf24' },
                   ].map((item, i) => (
                     <div key={i} style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '0.875rem 1rem', borderRadius: '12px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                      marginBottom: '0.75rem',
+                      padding: '1rem 1.25rem', borderRadius: '14px',
+                      background: 'rgba(30, 41, 59, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      marginBottom: '0.875rem',
                     }}>
-                      <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}>{item.label}</span>
-                      <span style={{ color: item.color, fontWeight: 700, fontSize: '1.25rem' }}>{item.value}</span>
+                      <span style={{ color: '#cbd5e1', fontSize: '0.925rem', fontWeight: 500 }}>{item.label}</span>
+                      <span style={{ color: item.color, fontWeight: 800, fontSize: '1.35rem' }}>{item.value}</span>
                     </div>
                   ))}
                 </div>
                 <div style={{
-                  padding: '1rem', borderRadius: '12px',
-                  background: 'linear-gradient(135deg, rgba(99,102,241,0.3), rgba(168,85,247,0.3))',
-                  border: '1px solid rgba(99,102,241,0.3)',
+                  padding: '1rem', borderRadius: '14px',
+                  background: 'linear-gradient(135deg, rgba(99,102,241,0.35), rgba(168,85,247,0.35))',
+                  border: '1px solid rgba(99,102,241,0.4)',
                   textAlign: 'center',
                 }}>
-                  <div style={{ color: 'white', fontWeight: 600, fontSize: '0.875rem' }}>🎓 10,000+ alumni connected worldwide</div>
+                  <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.95rem' }}>🎓 10,000+ alumni connected worldwide</div>
                 </div>
               </TiltCard>
             </div>
@@ -382,29 +377,31 @@ const Home = () => {
 
       {/* ── Stats Section ── */}
       <section style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
+        background: 'linear-gradient(135deg, #0b0f19 0%, #1e1b4b 50%, #0b0f19 100%)',
         padding: '5rem 2rem',
+        borderTop: '1px solid rgba(99,102,241,0.2)',
+        borderBottom: '1px solid rgba(99,102,241,0.2)',
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
           {stats.map((stat, idx) => (
             <TiltCard key={idx}>
               <div className="stat-card-3d" style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(99,102,241,0.2)',
-                borderRadius: '20px', padding: '2rem',
+                background: 'rgba(15, 23, 42, 0.85)',
+                border: '1px solid rgba(99,102,241,0.3)',
+                borderRadius: '22px', padding: '2.25rem 1.5rem',
                 textAlign: 'center',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
                 animation: `fadeInUp 0.6s ease ${idx * 0.1}s both`,
               }}>
-                <div style={{ color: '#6366f1', marginBottom: '1rem' }}>{stat.icon}</div>
+                <div style={{ color: '#818cf8', marginBottom: '1rem' }}>{stat.icon}</div>
                 <div style={{
-                  fontSize: '2.5rem', fontWeight: 800, color: 'white',
-                  background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+                  fontSize: '2.75rem', fontWeight: 900, color: '#ffffff',
+                  background: 'linear-gradient(135deg, #818cf8, #c084fc)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                 }}>
                   <AnimatedCounter target={stat.number} suffix={stat.suffix} />
                 </div>
-                <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', marginTop: '0.5rem' }}>{stat.label}</div>
+                <div style={{ color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 600, marginTop: '0.5rem' }}>{stat.label}</div>
               </div>
             </TiltCard>
           ))}
@@ -417,23 +414,24 @@ const Home = () => {
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
               <h2 style={{
-                fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, color: 'white',
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)', fontWeight: 900, color: '#ffffff',
                 marginBottom: '1rem', letterSpacing: '-0.02em',
-              }}>Everything you need to succeed</h2>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.125rem', maxWidth: '600px', margin: '0 auto' }}>
+              }}>Everything You Need to Succeed</h2>
+              <p style={{ color: '#cbd5e1', fontSize: '1.15rem', maxWidth: '650px', margin: '0 auto', fontWeight: 400 }}>
                 A comprehensive suite of tools designed specifically for our alumni and student community.
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
               {features.map((feature, idx) => (
                 <TiltCard key={idx}>
                   <div className="feature-card-3d" style={{
                     position: 'relative', overflow: 'hidden',
-                    background: 'rgba(255,255,255,0.04)',
+                    background: 'rgba(15, 23, 42, 0.88)',
                     backdropFilter: 'blur(20px)',
-                    border: `1px solid ${feature.color}33`,
-                    borderRadius: '20px', padding: '2.5rem',
+                    border: `1px solid ${feature.color}44`,
+                    borderRadius: '24px', padding: '2.5rem',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
                     animation: `fadeInUp 0.6s ease ${idx * 0.15}s both`,
                     transition: 'border-color 0.3s ease',
                   }}>
@@ -444,14 +442,15 @@ const Home = () => {
                       opacity: 0, transition: 'opacity 0.4s ease', pointerEvents: 'none',
                     }} />
                     <div style={{
-                      display: 'inline-flex', padding: '1rem',
-                      background: feature.bg, borderRadius: '16px',
+                      display: 'inline-flex', padding: '1.1rem',
+                      background: feature.bg, borderRadius: '18px',
                       color: feature.color, marginBottom: '1.5rem',
+                      boxShadow: `0 4px 20px ${feature.glow}`
                     }}>
                       {feature.icon}
                     </div>
-                    <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.25rem', marginBottom: '0.75rem' }}>{feature.title}</h3>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>{feature.description}</p>
+                    <h3 style={{ color: '#ffffff', fontWeight: 800, fontSize: '1.35rem', marginBottom: '0.875rem' }}>{feature.title}</h3>
+                    <p style={{ color: '#cbd5e1', lineHeight: 1.7, fontSize: '0.975rem' }}>{feature.description}</p>
                   </div>
                 </TiltCard>
               ))}
@@ -462,25 +461,24 @@ const Home = () => {
 
       {/* ── CTA Section with WAVES ── */}
       <VantaBackground effect="WAVES" style={{ minHeight: 'auto' }}>
-        <section style={{ padding: '8rem 2rem', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <section style={{ padding: '7rem 2rem', textAlign: 'center', position: 'relative', zIndex: 1 }}>
           <div style={{ maxWidth: '700px', margin: '0 auto' }}>
             <h2 style={{
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 800, color: 'white',
+              fontSize: 'clamp(2.25rem, 4vw, 3.5rem)', fontWeight: 900, color: '#ffffff',
               marginBottom: '1.5rem', letterSpacing: '-0.02em',
-            }}>Ready to reconnect?</h2>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.2rem', marginBottom: '3rem' }}>
+            }}>Ready to Reconnect?</h2>
+            <p style={{ color: '#cbd5e1', fontSize: '1.2rem', marginBottom: '3rem', fontWeight: 500 }}>
               Join the community today and unlock a world of possibilities.
             </p>
             <Link to="/register" style={{
               display: 'inline-flex', alignItems: 'center', gap: '10px',
-              padding: '1.1rem 2.5rem', borderRadius: '14px',
-              background: 'white', color: '#4f46e5',
-              fontWeight: 700, fontSize: '1.1rem', textDecoration: 'none',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+              padding: '1.25rem 2.75rem', borderRadius: '16px',
+              background: '#ffffff', color: '#4f46e5',
+              fontWeight: 800, fontSize: '1.15rem', textDecoration: 'none',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
               transition: 'all 0.3s ease',
-            }} onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.03)'; e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.4)'; }}
-               onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.3)'; }}>
-              Create Your Account <ArrowRight size={20} />
+            }}>
+              Create Your Account <ArrowRight size={22} />
             </Link>
           </div>
         </section>
@@ -489,21 +487,21 @@ const Home = () => {
       {/* ── Footer ── */}
       <footer style={{
         background: '#020617',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        padding: '2rem',
+        borderTop: '1px solid rgba(255,255,255,0.1)',
+        padding: '2.5rem 2rem',
         textAlign: 'center',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '0.75rem' }}>
-          <div style={{ background: 'linear-gradient(135deg, #6366f1, #d97706)', borderRadius: '8px', padding: '6px' }}>
-            <GraduationCap size={18} color="white" />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '0.875rem' }}>
+          <div style={{ background: 'linear-gradient(135deg, #6366f1, #d97706)', borderRadius: '10px', padding: '7px' }}>
+            <GraduationCap size={20} color="white" />
           </div>
-          <span style={{ color: 'white', fontWeight: 700 }}>Alumni Connect</span>
+          <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '1.1rem' }}>Alumni Connect</span>
         </div>
-        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.875rem' }}>
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
           © {new Date().getFullYear()} Alumni Management Portal. All rights reserved.
         </p>
       </footer>
-    </>
+    </div>
   );
 };
 

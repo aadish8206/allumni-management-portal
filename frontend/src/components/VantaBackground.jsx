@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-// Reusable Vanta animated 3D background component
+// Reusable Vanta animated 3D background component with solid dark fallback
 const VantaBackground = ({ effect = 'NET', children, style = {} }) => {
   const vantaRef = useRef(null);
   const vantaEffect = useRef(null);
@@ -43,18 +43,19 @@ const VantaBackground = ({ effect = 'NET', children, style = {} }) => {
               scaleMobile: 1.0,
               color: 0x6366f1,
               backgroundColor: 0x0f172a,
-              points: 12,
+              points: 14,
               maxDistance: 22,
-              spacing: 18,
+              spacing: 16,
             },
             WAVES: {
               el: vantaRef.current,
               THREE,
               mouseControls: true,
               touchControls: true,
-              color: 0x1e3a8a,
-              shininess: 50,
-              waveHeight: 15,
+              color: 0x1e1b4b,
+              backgroundColor: 0x0f172a,
+              shininess: 40,
+              waveHeight: 18,
               waveSpeed: 0.75,
               zoom: 0.85,
             },
@@ -79,9 +80,6 @@ const VantaBackground = ({ effect = 'NET', children, style = {} }) => {
               birdSize: 1.2,
               wingSpan: 25,
               speedLimit: 4,
-              separation: 40,
-              alignment: 40,
-              cohesion: 40,
             },
             RINGS: {
               el: vantaRef.current,
@@ -118,6 +116,9 @@ const VantaBackground = ({ effect = 'NET', children, style = {} }) => {
         position: 'relative',
         minHeight: '100vh',
         width: '100%',
+        backgroundColor: '#0f172a', // Guaranteed dark background fallback
+        color: '#ffffff',
+        overflow: 'hidden',
         ...style,
       }}
     >
