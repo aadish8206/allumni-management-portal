@@ -15,7 +15,7 @@ app.use(helmet());
 // HTTP Request Logging
 app.use(morgan('combined'));
 
-// CORS — only allow configured frontend origin
+// CORS — allow configured frontend origin
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
@@ -24,6 +24,30 @@ app.use(cors({
 // Body Parsing with size limit to prevent DoS
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+
+// Database Connection
+const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/alumni_portal';
+mongoose.connect(mongoURI)
+  .then(() => {
+    console.log('[DATABASE] MongoDB Connected successfully to Atlas');
+    const { initCronJobs } = require('./services/cronService');
+    initCronJobs();
+  })
+  .catch((err) => {
+    console.error('[DATABASE ERROR] MongoDB connection failed:', err.message);
+  });
+
+// Database Connection Guard Middleware for API routes
+app.use('/api', (req, res, next) => {
+  if (req.path === '/health') return next();
+  if (mongoose.connection.readyState !== 1) {
+    console.warn(`[API WARN] ${req.method} ${req.originalUrl} blocked: Database state is ${mongoose.connection.readyState}`);
+    return res.status(503).json({
+      msg: 'Database connection offline. Please ensure MongoDB Atlas IP Whitelist includes 0.0.0.0/0.'
+    });
+  }
+  next();
+});
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -45,16 +69,6 @@ app.use('/api/mentorship', mentorshipRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/campaigns', campaignRoutes);
-
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/alumni_portal')
-  .then(() => {
-    console.log('MongoDB Connected successfully');
-    // Initialize Cron Jobs
-    const { initCronJobs } = require('./services/cronService');
-    initCronJobs();
-  })
-  .catch((err) => console.log('MongoDB connection error:', err.message));
 
 // Basic route & Health Check
 app.get('/', (req, res) => {
