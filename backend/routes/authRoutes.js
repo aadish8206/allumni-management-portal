@@ -224,5 +224,20 @@ router.put('/reset-password/:token', async (req, res) => {
   }
 });
 
-module.exports = router;
+// Test Email Route — verify SMTP is working
+router.post('/test-email', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ msg: 'Provide an email address to test' });
+  try {
+    await sendEmail({
+      email,
+      subject: '✅ Alumni Portal — SMTP Test',
+      message: `<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#1e3a8a;">SMTP Test Successful!</h2><p>If you can read this, your email configuration is working correctly.</p><p><strong>Timestamp:</strong> ${new Date().toISOString()}</p></div>`
+    });
+    res.json({ msg: `Test email sent successfully to ${email}` });
+  } catch (err) {
+    res.status(500).json({ msg: `SMTP error: ${err.message}` });
+  }
+});
 
+module.exports = router;

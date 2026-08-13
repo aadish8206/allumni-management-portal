@@ -9,6 +9,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,9 +21,37 @@ const ForgotPassword = () => {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, { email });
       setSuccess(true);
       setMessage(res.data.msg);
+      // Start 60-second resend cooldown
+      setResendCooldown(60);
+      const timer = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) { clearInterval(timer); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err) {
       console.error('Forgot password error:', err.response?.data);
       setError(err.response?.data?.msg || 'Failed to send password reset email. Please verify your email address.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || loading) return;
+    setError('');
+    setLoading(true);
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, { email });
+      setResendCooldown(60);
+      const timer = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) { clearInterval(timer); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to resend. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -34,7 +63,7 @@ const ForgotPassword = () => {
       background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%)',
       display: 'flex',
       alignItems: 'center',
-      justify: 'center',
+      justifyContent: 'center',
       padding: '2rem 1rem',
       fontFamily: "'Inter', system-ui, sans-serif"
     }}>
@@ -56,7 +85,7 @@ const ForgotPassword = () => {
             borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'center',
+            justifyContent: 'center',
             margin: '0 auto 1.25rem auto',
             boxShadow: '0 8px 20px rgba(30, 58, 138, 0.25)'
           }}>
@@ -93,9 +122,46 @@ const ForgotPassword = () => {
           <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
             <CheckCircle size={56} color="#059669" style={{ margin: '0 auto 1.25rem auto' }} />
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.75rem' }}>Check Your Email</h3>
-            <p style={{ color: '#64748B', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+            <p style={{ color: '#64748B', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
               We have dispatched a password reset link to <strong>{email}</strong>. The link remains valid for <strong>10 minutes</strong>.
             </p>
+            {error && (
+              <div style={{
+                color: '#991B1B',
+                background: '#FEE2E2',
+                border: '1px solid #FCA5A5',
+                padding: '0.75rem 1rem',
+                borderRadius: '10px',
+                marginBottom: '1rem',
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: 500
+              }}>
+                <AlertCircle size={18} style={{ flexShrink: 0 }} />
+                <span>{error}</span>
+              </div>
+            )}
+            <button
+              onClick={handleResend}
+              disabled={resendCooldown > 0 || loading}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '10px',
+                border: '1.5px solid #CBD5E1',
+                background: 'transparent',
+                color: resendCooldown > 0 ? '#94A3B8' : '#1E3A8A',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                cursor: resendCooldown > 0 || loading ? 'not-allowed' : 'pointer',
+                marginBottom: '1rem',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {loading ? 'Resending...' : resendCooldown > 0 ? `Resend Email (${resendCooldown}s)` : 'Resend Email'}
+            </button>
             <Link to="/login" style={{
               display: 'inline-block',
               width: '100%',

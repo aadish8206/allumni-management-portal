@@ -33,7 +33,7 @@ const Login = () => {
       background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%)',
       display: 'flex',
       alignItems: 'center',
-      justify: 'center',
+      justifyContent: 'center',
       padding: '2rem 1rem',
       fontFamily: "'Inter', system-ui, sans-serif"
     }}>
@@ -56,7 +56,7 @@ const Login = () => {
             borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'center',
+            justifyContent: 'center',
             margin: '0 auto 1.25rem auto',
             boxShadow: '0 8px 20px rgba(30, 58, 138, 0.25)'
           }}>
